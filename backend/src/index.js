@@ -84,8 +84,8 @@ async function migrarTablas() {
 }
 
 async function seedDatos(client) {
-  const { rowCount } = await client.query('SELECT 1 FROM usuarios LIMIT 1');
-  if (rowCount > 0) return; // ya hay datos, no hacer nada
+  const { rows } = await client.query('SELECT 1 FROM usuarios LIMIT 1');
+  if (rows.length > 0) return; // ya hay datos, no hacer nada
 
   const hash = async (pwd) => bcrypt.hash(pwd, 10);
 
