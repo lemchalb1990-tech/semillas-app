@@ -43,20 +43,11 @@ async function migrarTablas() {
         nombre        VARCHAR(100) NOT NULL,
         email         VARCHAR(100) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        rol           VARCHAR(20) NOT NULL DEFAULT 'gestor',
+        rol           VARCHAR(20) NOT NULL DEFAULT 'gestor'
+                        CHECK (rol IN ('superadmin', 'admin', 'gestor')),
         created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
-    `);
-
-    await client.query(`
-      ALTER TABLE usuarios
-        DROP CONSTRAINT IF EXISTS usuarios_rol_check;
-    `);
-    await client.query(`
-      ALTER TABLE usuarios
-        ADD CONSTRAINT usuarios_rol_check
-        CHECK (rol IN ('superadmin', 'admin', 'gestor'));
     `);
 
     await client.query(`
