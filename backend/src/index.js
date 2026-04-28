@@ -31,10 +31,11 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-async function iniciarServidor() {
-  console.log(`Conectando a DB: ${process.env.DB_HOST || 'semilla-app_semilla-db'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'semilla'}`);
-  const client = await pool.connect();
+async function migrarTablas() {
+  let client;
   try {
+    console.log(`Conectando a DB: ${process.env.DB_HOST || 'semilla-app_semilla-db'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'semilla-app'}`);
+    client = await pool.connect();
     await client.query(`
       CREATE TABLE IF NOT EXISTS empresas (
         id          SERIAL PRIMARY KEY,
@@ -60,23 +61,22 @@ async function iniciarServidor() {
     `);
     console.log('Tablas verificadas/creadas correctamente');
   } catch (err) {
-    console.error('Error en migración al inicio:', err.message);
+    console.error('Error en migración (no crítico):', err.message);
   } finally {
-    client.release();
+    if (client) client.release();
   }
-
-  app.listen(PORT, () => {
-    console.log(`Servidor corriendo en puerto ${PORT}`);
-    console.log(`  POST /api/auth/registro`);
-    console.log(`  POST /api/auth/login`);
-    console.log(`  GET  /api/auth/perfil`);
-    console.log(`  GET  /api/proyectos`);
-    console.log(`  POST /api/proyectos`);
-    console.log(`  GET  /api/empresas`);
-    console.log(`  POST /api/empresas`);
-  });
 }
 
-iniciarServidor();
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`  POST /api/auth/registro`);
+  console.log(`  POST /api/auth/login`);
+  console.log(`  GET  /api/auth/perfil`);
+  console.log(`  GET  /api/proyectos`);
+  console.log(`  POST /api/proyectos`);
+  console.log(`  GET  /api/empresas`);
+  console.log(`  POST /api/empresas`);
+  migrarTablas();
+});
 
 module.exports = app;
