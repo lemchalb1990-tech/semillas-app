@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import Usuarios from './pages/Usuarios';
-import Empresas from './pages/Empresas';
 import './styles/global.css';
 
 function RutaAdmin({ children }) {
@@ -28,9 +27,6 @@ export default function App() {
           } />
           <Route path="/usuarios" element={
             <RutaAdmin><Usuarios /></RutaAdmin>
-          } />
-          <Route path="/empresas" element={
-            <RutaAdmin><Empresas /></RutaAdmin>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

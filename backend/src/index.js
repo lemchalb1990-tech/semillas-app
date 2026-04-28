@@ -8,7 +8,6 @@ const bcrypt         = require('bcryptjs');
 const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
-const empresasRoutes = require('./routes/empresas');
 const pool           = require('./db/connection');
 
 const app = express();
@@ -25,7 +24,6 @@ app.get('/', (req, res) => {
 app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
-app.use('/api/empresas',  empresasRoutes);
 
 // 404 genérico
 app.use((req, res) => {
@@ -76,32 +74,6 @@ async function migrarTablas() {
       );
     `);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS empresas (
-        id          SERIAL PRIMARY KEY,
-        nombre      VARCHAR(200) NOT NULL,
-        descripcion TEXT,
-        estado      VARCHAR(20) NOT NULL DEFAULT 'activa'
-                      CHECK (estado IN ('activa', 'inactiva')),
-        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-    `);
-
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS empresa_usuarios (
-        empresa_id  INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
-        usuario_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        PRIMARY KEY (empresa_id, usuario_id)
-      );
-    `);
-
-    await client.query(`
-      ALTER TABLE proyectos
-        ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
-    `);
-
     console.log('Tablas verificadas/creadas correctamente');
     await seedDatos(client);
   } catch (err) {
@@ -131,18 +103,7 @@ async function seedDatos(client) {
     ['Pedro Aguirre', 'pedro@semillas.com', await hash('Admin2024!'), 'gestor']
   );
 
-  const { rows: [empresa] } = await client.query(
-    `INSERT INTO empresas (nombre, descripcion)
-     VALUES ($1, $2) RETURNING id`,
-    ['Semillas del Valle S.A.', 'Empresa líder en producción y distribución de semillas agrícolas certificadas.']
-  );
-
-  await client.query(
-    `INSERT INTO empresa_usuarios (empresa_id, usuario_id) VALUES ($1, $2)`,
-    [empresa.id, luis.id]
-  );
-
-  console.log('Datos iniciales creados: 3 usuarios + 1 empresa de ejemplo');
+  console.log('Datos iniciales creados: 3 usuarios');
   console.log('  superadmin → luis@semillas.com / Admin2024!');
   console.log('  admin      → jose@semillas.com / Admin2024!');
   console.log('  gestor     → pedro@semillas.com / Admin2024!');
