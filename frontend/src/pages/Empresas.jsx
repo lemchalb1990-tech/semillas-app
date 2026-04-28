@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import ViewToggle from '../components/ViewToggle';
+import { useViewMode } from '../hooks/useViewMode';
 import api from '../api/client';
 
 const FORM_VACIO = { nombre: '', rut: '', nombreContacto: '', telefonoContacto: '', correoContacto: '' };
@@ -13,6 +15,7 @@ export default function Empresas() {
   const [error, setError]             = useState('');
   const [guardando, setGuardando]     = useState(false);
   const [panelUsuarios, setPanelUsuarios] = useState(null);
+  const [modo, setModo] = useViewMode('empresas', 'cards');
   const [asignados, setAsignados]     = useState([]);
   const [disponibles, setDisponibles] = useState([]);
 
@@ -110,7 +113,10 @@ export default function Empresas() {
           <h2>Gestión de Empresas</h2>
           <p>Administración de empresas y usuarios asignados</p>
         </div>
-        <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva empresa</button>
+        <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+          <ViewToggle mode={modo} onChange={setModo} />
+          <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva empresa</button>
+        </div>
       </div>
 
       {cargando ? (
@@ -121,7 +127,7 @@ export default function Empresas() {
           <h3>Sin empresas aún</h3>
           <p>Crea la primera empresa haciendo clic en "Nueva empresa"</p>
         </div>
-      ) : (
+      ) : modo === 'cards' ? (
         <div className="cards-grid">
           {empresas.map(e => (
             <div key={e.id} className="card">
@@ -133,10 +139,10 @@ export default function Empresas() {
                 </span>
               </div>
               <div className="card-body">
-                {e.rut              && <p><span>🪪</span><span><strong>RUT:</strong> {e.rut}</span></p>}
-                {e.nombre_contacto  && <p><span>👤</span><span>{e.nombre_contacto}</span></p>}
+                {e.rut               && <p><span>🪪</span><span><strong>RUT:</strong> {e.rut}</span></p>}
+                {e.nombre_contacto   && <p><span>👤</span><span>{e.nombre_contacto}</span></p>}
                 {e.telefono_contacto && <p><span>📞</span><span>{e.telefono_contacto}</span></p>}
-                {e.correo_contacto  && <p><span>✉️</span><span>{e.correo_contacto}</span></p>}
+                {e.correo_contacto   && <p><span>✉️</span><span>{e.correo_contacto}</span></p>}
               </div>
               <div className="card-footer">
                 <button className="btn btn-primary btn-sm"   onClick={() => abrirPanel(e)}>Usuarios</button>
@@ -145,6 +151,43 @@ export default function Empresas() {
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>RUT</th>
+                  <th>Contacto</th>
+                  <th>Teléfono</th>
+                  <th>Correo</th>
+                  <th style={{ textAlign: 'center' }}>N° Accesos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {empresas.map(e => (
+                  <tr key={e.id}>
+                    <td><strong>{e.nombre}</strong></td>
+                    <td className="td-muted">{e.rut || '—'}</td>
+                    <td className="td-muted">{e.nombre_contacto || '—'}</td>
+                    <td className="td-muted">{e.telefono_contacto || '—'}</td>
+                    <td className="td-muted">{e.correo_contacto || '—'}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{e.total_usuarios ?? 0}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '.5rem' }}>
+                        <button className="btn btn-primary btn-sm"   onClick={() => abrirPanel(e)}>Usuarios</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(e)}>Editar</button>
+                        <button className="btn btn-danger btn-sm"    onClick={() => eliminar(e.id)}>Eliminar</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

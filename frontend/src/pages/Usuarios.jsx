@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import ViewToggle from '../components/ViewToggle';
+import { useViewMode } from '../hooks/useViewMode';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
 
@@ -49,6 +51,7 @@ export default function Usuarios() {
   const [error, setError]               = useState('');
   const [guardando, setGuardando]       = useState(false);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+  const [modo, setModo] = useViewMode('usuarios', 'cards');
 
   async function cargar() {
     setCargando(true);
@@ -118,9 +121,10 @@ export default function Usuarios() {
             <h2>Gestión de Usuarios</h2>
             <p>Administración de cuentas y roles del sistema</p>
           </div>
-          <button className="btn btn-primary" onClick={abrirNuevo}>
-            + Nuevo usuario
-          </button>
+          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+            <ViewToggle mode={modo} onChange={setModo} />
+            <button className="btn btn-primary" onClick={abrirNuevo}>+ Nuevo usuario</button>
+          </div>
         </div>
 
         <div className="stats-bar">
@@ -150,7 +154,7 @@ export default function Usuarios() {
             <h3>Sin usuarios aún</h3>
             <p>Crea el primer usuario haciendo clic en "Nuevo usuario"</p>
           </div>
-        ) : (
+        ) : modo === 'cards' ? (
           <div className="cards-grid">
             {usuarios.map(u => (
               <div key={u.id} className="card">
@@ -179,6 +183,50 @@ export default function Usuarios() {
                 )}
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Registro</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuarios.map(u => (
+                    <tr key={u.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                          <Iniciales nombre={u.nombre} rol={u.rol} />
+                          <span className="td-name">
+                            {u.nombre}
+                            {u.id === yo.id && <span className="td-muted" style={{ marginLeft: '.4rem' }}>(tú)</span>}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="td-muted">{u.email}</td>
+                      <td><RolBadge rol={u.rol} /></td>
+                      <td className="td-muted">{new Date(u.created_at).toLocaleDateString('es-CO')}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '.5rem' }}>
+                          {puedeEditar(u) ? (
+                            <>
+                              <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
+                              <button className="btn btn-danger btn-sm"    onClick={() => setConfirmEliminar(u)}>Eliminar</button>
+                            </>
+                          ) : <span className="td-muted">—</span>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

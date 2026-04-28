@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import ProyectoModal from '../components/ProyectoModal';
+import ViewToggle from '../components/ViewToggle';
+import { useViewMode } from '../hooks/useViewMode';
 import api from '../api/client';
 
 const ESTADOS = ['', 'activo', 'completado', 'pausado', 'cancelado'];
@@ -23,6 +25,7 @@ export default function Dashboard() {
   const [filtroEspecie, setFiltroEspecie] = useState('');
   const [modal, setModal]               = useState(null);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+  const [modo, setModo] = useViewMode('proyectos', 'cards');
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -69,9 +72,12 @@ export default function Dashboard() {
             <h2>Proyectos de Semillas</h2>
             <p>Gestión y seguimiento de desarrollos agrícola</p>
           </div>
-          <button className="btn btn-primary" onClick={() => setModal('nuevo')}>
-            + Nuevo proyecto
-          </button>
+          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+            <ViewToggle mode={modo} onChange={setModo} />
+            <button className="btn btn-primary" onClick={() => setModal('nuevo')}>
+              + Nuevo proyecto
+            </button>
+          </div>
         </div>
 
         <div className="stats-bar">
@@ -117,7 +123,7 @@ export default function Dashboard() {
             <h3>Sin proyectos aún</h3>
             <p>Crea tu primer proyecto haciendo clic en "Nuevo proyecto"</p>
           </div>
-        ) : (
+        ) : modo === 'cards' ? (
           <div className="cards-grid">
             {proyectos.map(p => (
               <div key={p.id} className="card">
@@ -140,6 +146,42 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Empresa</th>
+                    <th>Especie</th>
+                    <th>Estado</th>
+                    <th>Responsable</th>
+                    <th>Fecha inicio</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proyectos.map(p => (
+                    <tr key={p.id}>
+                      <td><strong>{p.nombre}</strong>{p.descripcion && <div className="td-muted" style={{fontSize:'.78rem',marginTop:'.2rem'}}>{p.descripcion.slice(0,60)}{p.descripcion.length>60?'…':''}</div>}</td>
+                      <td className="td-muted">{p.empresa_nombre || '—'}</td>
+                      <td className="td-muted">{p.especie || '—'}</td>
+                      <td><span className={badgeClass(p.estado)}>{p.estado}</span></td>
+                      <td className="td-muted">{p.responsable}</td>
+                      <td className="td-muted">{formatFecha(p.fecha_inicio)}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '.5rem' }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => setModal(p)}>Editar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmEliminar(p)}>Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
