@@ -79,6 +79,10 @@ async function migrarTablas() {
         updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
+    await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS rut               VARCHAR(20);`);
+    await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS nombre_contacto   VARCHAR(100);`);
+    await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS telefono_contacto VARCHAR(30);`);
+    await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS correo_contacto   VARCHAR(100);`);
 
     console.log('Tablas verificadas/creadas correctamente');
     await seedDatos(client);
