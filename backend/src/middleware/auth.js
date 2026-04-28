@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'semillas_jwt_secret_prod_2024';
 
 function verificarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -11,7 +12,7 @@ function verificarToken(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET);
     req.usuario = payload;
     next();
   } catch (err) {

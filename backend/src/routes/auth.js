@@ -5,11 +5,12 @@ const { verificarToken } = require('../middleware/auth');
 
 const router = express.Router();
 const TOKEN_EXPIRA = '8h';
+const JWT_SECRET = process.env.JWT_SECRET || 'semillas_jwt_secret_prod_2024';
 
 function generarToken(usuario) {
   return jwt.sign(
     { id: usuario.id, email: usuario.email, rol: usuario.rol },
-    process.env.JWT_SECRET,
+    JWT_SECRET,
     { expiresIn: TOKEN_EXPIRA }
   );
 }
