@@ -36,8 +36,8 @@ router.post('/', verificarToken, soloSuperadmin, async (req, res) => {
     const empresa = await crearEmpresa({ nombre, rut, nombreContacto, telefonoContacto, correoContacto });
     res.status(201).json({ empresa });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('Error crear empresa:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
