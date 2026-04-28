@@ -32,6 +32,7 @@ app.use((req, res) => {
 });
 
 async function iniciarServidor() {
+  console.log(`Conectando a DB: ${process.env.DB_HOST || 'semilla-app_semilla-db'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'semilla'}`);
   const client = await pool.connect();
   try {
     await client.query(`
