@@ -54,7 +54,7 @@ router.get('/:id', verificarToken, async (req, res) => {
 
 // POST /api/proyectos
 router.post('/', verificarToken, async (req, res) => {
-  const { nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion } = req.body;
+  const { nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion, empresaId } = req.body;
 
   if (!nombre) {
     return res.status(400).json({ error: 'El nombre del proyecto es obligatorio' });
@@ -69,6 +69,7 @@ router.post('/', verificarToken, async (req, res) => {
       nombre, descripcion, especie, estado,
       fechaInicio, fechaFin, ubicacion,
       usuarioId: req.usuario.id,
+      empresaId: empresaId || null,
     });
     res.status(201).json({ proyecto });
   } catch (err) {

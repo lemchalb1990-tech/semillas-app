@@ -127,6 +127,7 @@ export default function Dashboard() {
                   <span className={badgeClass(p.estado)}>{p.estado}</span>
                 </div>
                 <div className="card-body">
+                  {p.empresa_nombre && <p><span>🏢</span><span>{p.empresa_nombre}</span></p>}
                   {p.especie   && <p><span>🌿</span><span><strong>Especie:</strong> {p.especie}</span></p>}
                   {p.ubicacion && <p><span>📍</span><span>{p.ubicacion}</span></p>}
                   <p><span>📅</span><span>{formatFecha(p.fecha_inicio)} → {formatFecha(p.fecha_fin)}</span></p>

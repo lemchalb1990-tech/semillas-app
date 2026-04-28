@@ -84,6 +84,20 @@ async function migrarTablas() {
     await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS telefono_contacto VARCHAR(30);`);
     await client.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS correo_contacto   VARCHAR(100);`);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS empresa_usuarios (
+        empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (empresa_id, usuario_id)
+      );
+    `);
+
+    await client.query(`
+      ALTER TABLE proyectos
+        ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
+    `);
+
     console.log('Tablas verificadas/creadas correctamente');
     await seedDatos(client);
   } catch (err) {

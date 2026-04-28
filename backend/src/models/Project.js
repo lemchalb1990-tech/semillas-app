@@ -1,4 +1,5 @@
 const pool = require('../db/connection');
+const { empresasDeUsuario } = require('./Empresa');
 
 async function listarProyectos({ usuarioId, rol, estado, especie, pagina = 1, limite = 20 }) {
   const offset = (pagina - 1) * limite;
@@ -9,6 +10,13 @@ async function listarProyectos({ usuarioId, rol, estado, especie, pagina = 1, li
   if (rol === 'gestor') {
     condiciones.push(`p.usuario_id = $${idx++}`);
     valores.push(usuarioId);
+  } else if (rol === 'admin') {
+    const ids = await empresasDeUsuario(usuarioId);
+    if (ids.length === 0) {
+      return { proyectos: [], total: 0 };
+    }
+    condiciones.push(`p.empresa_id = ANY($${idx++}::int[])`);
+    valores.push(ids);
   }
 
   if (estado) {
@@ -24,9 +32,10 @@ async function listarProyectos({ usuarioId, rol, estado, especie, pagina = 1, li
   const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
 
   const { rows } = await pool.query(
-    `SELECT p.*, u.nombre AS responsable
+    `SELECT p.*, u.nombre AS responsable, e.nombre AS empresa_nombre
      FROM proyectos p
      LEFT JOIN usuarios u ON u.id = p.usuario_id
+     LEFT JOIN empresas e ON e.id = p.empresa_id
      ${where}
      ORDER BY p.created_at DESC
      LIMIT $${idx++} OFFSET $${idx}`,
@@ -52,12 +61,12 @@ async function buscarPorId(id) {
   return rows[0] || null;
 }
 
-async function crearProyecto({ nombre, descripcion, especie, estado = 'activo', fechaInicio, fechaFin, ubicacion, usuarioId }) {
+async function crearProyecto({ nombre, descripcion, especie, estado = 'activo', fechaInicio, fechaFin, ubicacion, usuarioId, empresaId }) {
   const { rows } = await pool.query(
-    `INSERT INTO proyectos (nombre, descripcion, especie, estado, fecha_inicio, fecha_fin, ubicacion, usuario_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO proyectos (nombre, descripcion, especie, estado, fecha_inicio, fecha_fin, ubicacion, usuario_id, empresa_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
-    [nombre, descripcion, especie, estado, fechaInicio || null, fechaFin || null, ubicacion, usuarioId]
+    [nombre, descripcion, especie, estado, fechaInicio || null, fechaFin || null, ubicacion, usuarioId, empresaId || null]
   );
   return rows[0];
 }

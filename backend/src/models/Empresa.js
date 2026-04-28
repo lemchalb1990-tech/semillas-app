@@ -42,4 +42,56 @@ async function eliminarEmpresa(id) {
   return rowCount > 0;
 }
 
-module.exports = { listarEmpresas, buscarEmpresaPorId, crearEmpresa, actualizarEmpresa, eliminarEmpresa };
+async function obtenerUsuariosDeEmpresa(empresaId) {
+  const { rows } = await pool.query(
+    `SELECT u.id, u.nombre, u.email, u.rol
+     FROM usuarios u
+     JOIN empresa_usuarios eu ON eu.usuario_id = u.id
+     WHERE eu.empresa_id = $1
+     ORDER BY u.nombre`,
+    [empresaId]
+  );
+  return rows;
+}
+
+async function usuariosDisponibles(empresaId) {
+  const { rows } = await pool.query(
+    `SELECT id, nombre, email, rol FROM usuarios
+     WHERE rol IN ('admin','gestor')
+       AND id NOT IN (
+         SELECT usuario_id FROM empresa_usuarios WHERE empresa_id = $1
+       )
+     ORDER BY nombre`,
+    [empresaId]
+  );
+  return rows;
+}
+
+async function asignarUsuario(empresaId, usuarioId) {
+  await pool.query(
+    `INSERT INTO empresa_usuarios (empresa_id, usuario_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+    [empresaId, usuarioId]
+  );
+}
+
+async function desasignarUsuario(empresaId, usuarioId) {
+  await pool.query(
+    `DELETE FROM empresa_usuarios WHERE empresa_id = $1 AND usuario_id = $2`,
+    [empresaId, usuarioId]
+  );
+}
+
+async function empresasDeUsuario(usuarioId) {
+  const { rows } = await pool.query(
+    `SELECT e.id FROM empresas e
+     JOIN empresa_usuarios eu ON eu.empresa_id = e.id
+     WHERE eu.usuario_id = $1`,
+    [usuarioId]
+  );
+  return rows.map(r => r.id);
+}
+
+module.exports = {
+  listarEmpresas, buscarEmpresaPorId, crearEmpresa, actualizarEmpresa, eliminarEmpresa,
+  obtenerUsuariosDeEmpresa, usuariosDisponibles, asignarUsuario, desasignarUsuario, empresasDeUsuario,
+};
