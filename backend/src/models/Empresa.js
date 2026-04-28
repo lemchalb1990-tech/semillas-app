@@ -2,7 +2,11 @@ const pool = require('../db/connection');
 
 async function listarEmpresas() {
   const { rows } = await pool.query(`
-    SELECT * FROM empresas ORDER BY created_at DESC
+    SELECT e.*, COUNT(eu.usuario_id) AS total_usuarios
+    FROM empresas e
+    LEFT JOIN empresa_usuarios eu ON eu.empresa_id = e.id
+    GROUP BY e.id
+    ORDER BY e.created_at DESC
   `);
   return rows;
 }

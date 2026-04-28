@@ -130,6 +130,7 @@ export default function Empresas() {
                 <th>Contacto</th>
                 <th>Teléfono</th>
                 <th>Correo</th>
+                <th style={{ textAlign: 'center' }}>N° de Accesos</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -141,6 +142,7 @@ export default function Empresas() {
                   <td>{e.nombre_contacto || '—'}</td>
                   <td>{e.telefono_contacto || '—'}</td>
                   <td>{e.correo_contacto || '—'}</td>
+                  <td style={{ textAlign: 'center', fontWeight: 600 }}>{e.total_usuarios ?? 0}</td>
                   <td>
                     <div className="acciones">
                       <button className="btn btn-sm btn-primary"   onClick={() => abrirPanel(e)}>Usuarios</button>
