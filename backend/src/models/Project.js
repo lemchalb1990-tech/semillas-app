@@ -1,6 +1,6 @@
 const pool = require('../db/connection');
 
-async function listarProyectos({ usuarioId, rol, estado, especie, empresaId, pagina = 1, limite = 20 }) {
+async function listarProyectos({ usuarioId, rol, estado, especie, pagina = 1, limite = 20 }) {
   const offset = (pagina - 1) * limite;
   const condiciones = [];
   const valores = [];
@@ -9,11 +9,6 @@ async function listarProyectos({ usuarioId, rol, estado, especie, empresaId, pag
   if (rol === 'gestor') {
     condiciones.push(`p.usuario_id = $${idx++}`);
     valores.push(usuarioId);
-  }
-
-  if (empresaId) {
-    condiciones.push(`p.empresa_id = $${idx++}`);
-    valores.push(empresaId);
   }
 
   if (estado) {
@@ -29,10 +24,9 @@ async function listarProyectos({ usuarioId, rol, estado, especie, empresaId, pag
   const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
 
   const { rows } = await pool.query(
-    `SELECT p.*, u.nombre AS responsable, e.nombre AS empresa_nombre
+    `SELECT p.*, u.nombre AS responsable
      FROM proyectos p
-     LEFT JOIN usuarios u  ON u.id = p.usuario_id
-     LEFT JOIN empresas e  ON e.id = p.empresa_id
+     LEFT JOIN usuarios u ON u.id = p.usuario_id
      ${where}
      ORDER BY p.created_at DESC
      LIMIT $${idx++} OFFSET $${idx}`,
@@ -49,41 +43,39 @@ async function listarProyectos({ usuarioId, rol, estado, especie, empresaId, pag
 
 async function buscarPorId(id) {
   const { rows } = await pool.query(
-    `SELECT p.*, u.nombre AS responsable, e.nombre AS empresa_nombre
+    `SELECT p.*, u.nombre AS responsable
      FROM proyectos p
      LEFT JOIN usuarios u ON u.id = p.usuario_id
-     LEFT JOIN empresas e ON e.id = p.empresa_id
      WHERE p.id = $1`,
     [id]
   );
   return rows[0] || null;
 }
 
-async function crearProyecto({ nombre, descripcion, especie, estado = 'activo', fechaInicio, fechaFin, ubicacion, usuarioId, empresaId }) {
+async function crearProyecto({ nombre, descripcion, especie, estado = 'activo', fechaInicio, fechaFin, ubicacion, usuarioId }) {
   const { rows } = await pool.query(
-    `INSERT INTO proyectos (nombre, descripcion, especie, estado, fecha_inicio, fecha_fin, ubicacion, usuario_id, empresa_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO proyectos (nombre, descripcion, especie, estado, fecha_inicio, fecha_fin, ubicacion, usuario_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
-    [nombre, descripcion, especie, estado, fechaInicio || null, fechaFin || null, ubicacion, usuarioId, empresaId || null]
+    [nombre, descripcion, especie, estado, fechaInicio || null, fechaFin || null, ubicacion, usuarioId]
   );
   return rows[0];
 }
 
-async function actualizarProyecto(id, { nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion, empresaId }) {
+async function actualizarProyecto(id, { nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion }) {
   const { rows } = await pool.query(
     `UPDATE proyectos
-     SET nombre      = COALESCE($1, nombre),
-         descripcion = COALESCE($2, descripcion),
-         especie     = COALESCE($3, especie),
-         estado      = COALESCE($4, estado),
+     SET nombre       = COALESCE($1, nombre),
+         descripcion  = COALESCE($2, descripcion),
+         especie      = COALESCE($3, especie),
+         estado       = COALESCE($4, estado),
          fecha_inicio = COALESCE($5, fecha_inicio),
          fecha_fin    = COALESCE($6, fecha_fin),
-         ubicacion   = COALESCE($7, ubicacion),
-         empresa_id  = COALESCE($8, empresa_id),
-         updated_at  = NOW()
-     WHERE id = $9
+         ubicacion    = COALESCE($7, ubicacion),
+         updated_at   = NOW()
+     WHERE id = $8
      RETURNING *`,
-    [nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion, empresaId, id]
+    [nombre, descripcion, especie, estado, fechaInicio, fechaFin, ubicacion, id]
   );
   return rows[0] || null;
 }
