@@ -24,7 +24,6 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/empresas',  empresasRoutes);
-console.log('  GET  /api/empresas — rutas cargadas:', empresasRoutes.stack?.length ?? 'ok');
 
 // 404 genérico
 app.use((req, res) => {
@@ -38,6 +37,8 @@ app.listen(PORT, () => {
   console.log(`  GET  /api/auth/perfil`);
   console.log(`  GET  /api/proyectos`);
   console.log(`  POST /api/proyectos`);
+  console.log(`  GET  /api/empresas`);
+  console.log(`  POST /api/empresas`);
 });
 
 module.exports = app;
