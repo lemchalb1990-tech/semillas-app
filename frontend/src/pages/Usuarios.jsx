@@ -35,13 +35,14 @@ function Iniciales({ nombre, rol }) {
   );
 }
 
-const FORM_VACIO = { nombre: '', email: '', password: '', rol: 'gestor' };
+const FORM_VACIO = { nombre: '', email: '', password: '', rol: 'gestor', empresaId: '' };
 
 export default function Usuarios() {
   const { usuario: yo } = useAuth();
   const esSuperadmin = yo?.rol === 'superadmin';
 
   const [usuarios, setUsuarios]         = useState([]);
+  const [empresas, setEmpresas]         = useState([]);
   const [cargando, setCargando]         = useState(true);
   const [modal, setModal]               = useState(null);
   const [form, setForm]                 = useState(FORM_VACIO);
@@ -52,8 +53,12 @@ export default function Usuarios() {
   async function cargar() {
     setCargando(true);
     try {
-      const { data } = await api.get('/usuarios');
-      setUsuarios(data.usuarios);
+      const [{ data: u }, { data: e }] = await Promise.all([
+        api.get('/usuarios'),
+        esSuperadmin ? api.get('/empresas') : Promise.resolve({ data: { empresas: [] } }),
+      ]);
+      setUsuarios(u.usuarios);
+      setEmpresas(e.empresas);
     } catch (err) {
       console.error(err);
     } finally {
@@ -220,6 +225,22 @@ export default function Usuarios() {
                   ))}
                 </select>
               </div>
+              {esSuperadmin && modal === 'nuevo' && (
+                <div className="form-group">
+                  <label>Empresa asignada</label>
+                  <select name="empresaId" value={form.empresaId} onChange={onChange}>
+                    <option value="">Sin empresa</option>
+                    {empresas.map(e => (
+                      <option key={e.id} value={e.id}>{e.nombre}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {!esSuperadmin && modal === 'nuevo' && (
+                <p style={{ fontSize: '.8rem', color: 'var(--gris-500)', marginTop: '.25rem' }}>
+                  El usuario será asignado automáticamente a tu empresa.
+                </p>
+              )}
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setModal(null)}>Cancelar</button>
                 <button type="submit" className="btn btn-primary" disabled={guardando} style={{ minWidth: 120 }}>

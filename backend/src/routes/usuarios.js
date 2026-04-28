@@ -1,5 +1,6 @@
 const express = require('express');
 const { listarUsuarios, buscarPorId, crearUsuario, actualizarUsuario, eliminarUsuario } = require('../models/User');
+const { empresasDeUsuario, asignarUsuario } = require('../models/Empresa');
 const { verificarToken, soloAdmin, nivelRol } = require('../middleware/auth');
 
 const router = express.Router();
@@ -19,9 +20,9 @@ router.get('/', verificarToken, soloAdmin, async (req, res) => {
   }
 });
 
-// POST /api/usuarios  — superadmin puede crear cualquier rol, admin solo gestores
+// POST /api/usuarios  — superadmin puede crear cualquier rol, admin solo admin/gestor
 router.post('/', verificarToken, soloAdmin, async (req, res) => {
-  const { nombre, email, password, rol } = req.body;
+  const { nombre, email, password, rol, empresaId } = req.body;
 
   if (!nombre || !email || !password || !rol) {
     return res.status(400).json({ error: 'Nombre, email, contraseña y rol son obligatorios' });
@@ -32,7 +33,6 @@ router.post('/', verificarToken, soloAdmin, async (req, res) => {
   if (password.length < 8) {
     return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
   }
-  // Admin no puede crear superadmins
   if (req.usuario.rol === 'admin' && nivelRol(rol) >= nivelRol('superadmin')) {
     return res.status(403).json({ error: 'No tienes permiso para crear superadministradores' });
   }
@@ -43,6 +43,17 @@ router.post('/', verificarToken, soloAdmin, async (req, res) => {
     if (existente) return res.status(409).json({ error: 'El email ya está registrado' });
 
     const usuario = await crearUsuario({ nombre, email, password, rol });
+
+    // Asignar empresa automáticamente
+    if (req.usuario.rol === 'admin') {
+      // Admin: asignar a todas sus empresas
+      const ids = await empresasDeUsuario(req.usuario.id);
+      for (const id of ids) await asignarUsuario(id, usuario.id);
+    } else if (req.usuario.rol === 'superadmin' && empresaId) {
+      // Superadmin: asignar a la empresa seleccionada
+      await asignarUsuario(parseInt(empresaId), usuario.id);
+    }
+
     res.status(201).json({ usuario });
   } catch (err) {
     console.error('Error al crear usuario:', err);
