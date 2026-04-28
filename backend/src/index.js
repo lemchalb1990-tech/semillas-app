@@ -34,8 +34,47 @@ app.use((req, res) => {
 async function migrarTablas() {
   let client;
   try {
-    console.log(`Conectando a DB: ${process.env.DB_HOST || 'semilla-app_semilla-db'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'semilla-app'}`);
     client = await pool.connect();
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS usuarios (
+        id            SERIAL PRIMARY KEY,
+        nombre        VARCHAR(100) NOT NULL,
+        email         VARCHAR(100) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        rol           VARCHAR(20) NOT NULL DEFAULT 'gestor',
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      ALTER TABLE usuarios
+        DROP CONSTRAINT IF EXISTS usuarios_rol_check;
+    `);
+    await client.query(`
+      ALTER TABLE usuarios
+        ADD CONSTRAINT usuarios_rol_check
+        CHECK (rol IN ('superadmin', 'admin', 'gestor'));
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS proyectos (
+        id           SERIAL PRIMARY KEY,
+        nombre       VARCHAR(200) NOT NULL,
+        descripcion  TEXT,
+        especie      VARCHAR(100),
+        estado       VARCHAR(20) NOT NULL DEFAULT 'activo'
+                       CHECK (estado IN ('activo','completado','pausado','cancelado')),
+        fecha_inicio DATE,
+        fecha_fin    DATE,
+        ubicacion    VARCHAR(255),
+        usuario_id   INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS empresas (
         id          SERIAL PRIMARY KEY,
@@ -47,6 +86,7 @@ async function migrarTablas() {
         updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS empresa_usuarios (
         empresa_id  INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
@@ -55,10 +95,12 @@ async function migrarTablas() {
         PRIMARY KEY (empresa_id, usuario_id)
       );
     `);
+
     await client.query(`
       ALTER TABLE proyectos
         ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
     `);
+
     console.log('Tablas verificadas/creadas correctamente');
   } catch (err) {
     console.error('Error en migración (no crítico):', err.message);
