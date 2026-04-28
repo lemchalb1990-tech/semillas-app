@@ -67,7 +67,7 @@ export default function Dashboard() {
         <div className="page-header">
           <div className="page-header-left">
             <h2>Proyectos de Semillas</h2>
-            <p>Gestión y seguimiento de proyectos agrícolas</p>
+            <p>Gestión y seguimiento de desarrollos agrícola</p>
           </div>
           <button className="btn btn-primary" onClick={() => setModal('nuevo')}>
             + Nuevo proyecto

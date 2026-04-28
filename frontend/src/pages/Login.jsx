@@ -31,11 +31,11 @@ export default function Login() {
         <div className="auth-left-content">
           <div className="auth-left-icon">🌱</div>
           <h1>Semillas App</h1>
-          <p>Plataforma de gestión de proyectos agrícolas y semillas</p>
+          <p>Plataforma de gestión de desarrollos agrícola</p>
           <div className="auth-left-features">
             <div className="auth-feature">
               <div className="auth-feature-icon">📋</div>
-              <span>Gestión de proyectos</span>
+              <span>Gestión de desarrollos agrícola</span>
             </div>
             <div className="auth-feature">
               <div className="auth-feature-icon">👥</div>

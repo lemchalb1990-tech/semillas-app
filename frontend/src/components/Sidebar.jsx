@@ -29,7 +29,7 @@ export default function Sidebar({ open, onClose }) {
           <span className="sidebar-brand-icon">🌱</span>
           <div className="sidebar-brand-text">
             <strong>Semillas App</strong>
-            <span>Gestión de proyectos</span>
+            <span>Gestión de desarrollos agrícola</span>
           </div>
         </div>
 
