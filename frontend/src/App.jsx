@@ -5,12 +5,20 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import Usuarios from './pages/Usuarios';
+import Empresas from './pages/Empresas';
 import './styles/global.css';
 
 function RutaAdmin({ children }) {
   const { usuario } = useAuth();
   if (!usuario) return <Navigate to="/login" replace />;
   if (!['superadmin', 'admin'].includes(usuario.rol)) return <Navigate to="/" replace />;
+  return children;
+}
+
+function RutaSuperadmin({ children }) {
+  const { usuario } = useAuth();
+  if (!usuario) return <Navigate to="/login" replace />;
+  if (usuario.rol !== 'superadmin') return <Navigate to="/" replace />;
   return children;
 }
 
@@ -27,6 +35,9 @@ export default function App() {
           } />
           <Route path="/usuarios" element={
             <RutaAdmin><Usuarios /></RutaAdmin>
+          } />
+          <Route path="/empresas" element={
+            <RutaSuperadmin><Empresas /></RutaSuperadmin>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

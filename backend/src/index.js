@@ -8,6 +8,7 @@ const bcrypt         = require('bcryptjs');
 const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
+const empresasRoutes = require('./routes/empresas');
 const pool           = require('./db/connection');
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
+app.use('/api/empresas',  empresasRoutes);
 
 // 404 genérico
 app.use((req, res) => {
@@ -71,6 +73,19 @@ async function migrarTablas() {
         usuario_id   INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
         created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS empresas (
+        id                SERIAL PRIMARY KEY,
+        nombre            VARCHAR(200) NOT NULL,
+        rut               VARCHAR(20),
+        nombre_contacto   VARCHAR(100),
+        telefono_contacto VARCHAR(30),
+        correo_contacto   VARCHAR(100),
+        created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
 
