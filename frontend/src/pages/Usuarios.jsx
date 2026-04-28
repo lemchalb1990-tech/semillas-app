@@ -144,52 +144,41 @@ export default function Usuarios() {
 
         {cargando ? (
           <div className="spinner-wrap"><div className="spinner" /></div>
+        ) : usuarios.length === 0 ? (
+          <div className="empty">
+            <div className="empty-icon">👥</div>
+            <h3>Sin usuarios aún</h3>
+            <p>Crea el primer usuario haciendo clic en "Nuevo usuario"</p>
+          </div>
         ) : (
-          <div className="table-wrap">
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Registro</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuarios.map(u => (
-                    <tr key={u.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <Iniciales nombre={u.nombre} rol={u.rol} />
-                          <div>
-                            <div className="td-name">
-                              {u.nombre}
-                              {u.id === yo.id && <span className="td-muted" style={{ marginLeft: '.4rem' }}>(tú)</span>}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="td-muted">{u.email}</td>
-                      <td><RolBadge rol={u.rol} /></td>
-                      <td className="td-muted">{new Date(u.created_at).toLocaleDateString('es-CO')}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '.5rem' }}>
-                          {puedeEditar(u) && (
-                            <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
-                          )}
-                          {puedeEditar(u) && (
-                            <button className="btn btn-danger btn-sm" onClick={() => setConfirmEliminar(u)}>Eliminar</button>
-                          )}
-                          {!puedeEditar(u) && <span className="td-muted" style={{ fontSize: '.78rem' }}>—</span>}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="cards-grid">
+            {usuarios.map(u => (
+              <div key={u.id} className="card">
+                <div className="card-accent" />
+                <div className="card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', flex: 1, minWidth: 0 }}>
+                    <Iniciales nombre={u.nombre} rol={u.rol} />
+                    <div style={{ minWidth: 0 }}>
+                      <div className="card-title" style={{ fontSize: '.95rem' }}>
+                        {u.nombre}
+                        {u.id === yo.id && <span style={{ color: 'var(--gris-400)', fontWeight: 400, fontSize: '.8rem', marginLeft: '.4rem' }}>(tú)</span>}
+                      </div>
+                      <div style={{ fontSize: '.8rem', color: 'var(--gris-500)', marginTop: '.1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
+                    </div>
+                  </div>
+                  <RolBadge rol={u.rol} />
+                </div>
+                <div className="card-body">
+                  <p><span>📅</span><span>Registro: {new Date(u.created_at).toLocaleDateString('es-CO')}</span></p>
+                </div>
+                {puedeEditar(u) && (
+                  <div className="card-footer">
+                    <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
+                    <button className="btn btn-danger btn-sm"    onClick={() => setConfirmEliminar(u)}>Eliminar</button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
