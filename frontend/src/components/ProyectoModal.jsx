@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
+import api from '../api/client';
 
 const ESTADOS = ['activo', 'completado', 'pausado', 'cancelado'];
 
 export default function ProyectoModal({ proyecto, onGuardar, onCerrar }) {
+  const [empresas, setEmpresas] = useState([]);
+
+  useEffect(() => {
+    api.get('/empresas').then(({ data }) => setEmpresas(data.empresas)).catch(() => {});
+  }, []);
   const editando = !!proyecto;
 
   const [form, setForm] = useState({
@@ -13,6 +19,7 @@ export default function ProyectoModal({ proyecto, onGuardar, onCerrar }) {
     fechaInicio: '',
     fechaFin: '',
     ubicacion: '',
+    empresaId: '',
   });
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -27,6 +34,7 @@ export default function ProyectoModal({ proyecto, onGuardar, onCerrar }) {
         fechaInicio: proyecto.fecha_inicio ? proyecto.fecha_inicio.slice(0, 10) : '',
         fechaFin:    proyecto.fecha_fin    ? proyecto.fecha_fin.slice(0, 10)    : '',
         ubicacion:   proyecto.ubicacion || '',
+        empresaId:   proyecto.empresa_id ? String(proyecto.empresa_id) : '',
       });
     }
   }, [proyecto]);
@@ -88,6 +96,15 @@ export default function ProyectoModal({ proyecto, onGuardar, onCerrar }) {
               <label>Estado</label>
               <select name="estado" value={form.estado} onChange={onChange}>
                 {ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}
+              </select>
+            </div>
+          )}
+          {empresas.length > 0 && (
+            <div className="form-group">
+              <label>Empresa</label>
+              <select name="empresaId" value={form.empresaId} onChange={onChange}>
+                <option value="">Sin empresa asignada</option>
+                {empresas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
               </select>
             </div>
           )}

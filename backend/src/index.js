@@ -7,6 +7,7 @@ dotenv.config();
 const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
+const empresasRoutes = require('./routes/empresas');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
+app.use('/api/empresas',  empresasRoutes);
 
 // 404 genérico
 app.use((req, res) => {

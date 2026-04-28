@@ -12,6 +12,7 @@ export default function Sidebar({ open, onClose }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const esAdmin = ['superadmin', 'admin'].includes(usuario?.rol);
+  const esSuperadmin = usuario?.rol === 'superadmin';
   const iniciales = usuario?.nombre?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
   const colores = ROL_COLOR[usuario?.rol] || { bg: '#374151', text: '#fff' };
 
@@ -44,6 +45,12 @@ export default function Sidebar({ open, onClose }) {
             <NavLink to="/usuarios" onClick={onClose}>
               <span className="sidebar-nav-icon">👥</span>
               Usuarios
+            </NavLink>
+          )}
+          {esSuperadmin && (
+            <NavLink to="/empresas" onClick={onClose}>
+              <span className="sidebar-nav-icon">🏢</span>
+              Empresas
             </NavLink>
           )}
         </nav>
