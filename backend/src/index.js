@@ -24,6 +24,7 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/empresas',  empresasRoutes);
+console.log('  GET  /api/empresas — rutas cargadas:', empresasRoutes.stack?.length ?? 'ok');
 
 // 404 genérico
 app.use((req, res) => {
