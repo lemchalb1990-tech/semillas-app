@@ -114,46 +114,37 @@ export default function Empresas() {
       </div>
 
       {cargando ? (
-        <div className="loading-state">Cargando...</div>
+        <div className="spinner-wrap"><div className="spinner" /></div>
       ) : empresas.length === 0 ? (
-        <div className="empty-state">
-          <p>No hay empresas registradas aún.</p>
-          <button className="btn btn-primary" onClick={abrirNueva}>Crear primera empresa</button>
+        <div className="empty">
+          <div className="empty-icon">🏢</div>
+          <h3>Sin empresas aún</h3>
+          <p>Crea la primera empresa haciendo clic en "Nueva empresa"</p>
         </div>
       ) : (
-        <div className="table-container">
-          <table className="tabla">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>RUT</th>
-                <th>Contacto</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th style={{ textAlign: 'center' }}>N° de Accesos</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {empresas.map(e => (
-                <tr key={e.id}>
-                  <td><strong>{e.nombre}</strong></td>
-                  <td>{e.rut || '—'}</td>
-                  <td>{e.nombre_contacto || '—'}</td>
-                  <td>{e.telefono_contacto || '—'}</td>
-                  <td>{e.correo_contacto || '—'}</td>
-                  <td style={{ textAlign: 'center', fontWeight: 600 }}>{e.total_usuarios ?? 0}</td>
-                  <td>
-                    <div className="acciones">
-                      <button className="btn btn-sm btn-primary"   onClick={() => abrirPanel(e)}>Usuarios</button>
-                      <button className="btn btn-sm btn-secondary" onClick={() => abrirEditar(e)}>Editar</button>
-                      <button className="btn btn-sm btn-danger"    onClick={() => eliminar(e.id)}>Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="cards-grid">
+          {empresas.map(e => (
+            <div key={e.id} className="card">
+              <div className="card-accent" />
+              <div className="card-header">
+                <span className="card-title">{e.nombre}</span>
+                <span className="badge" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+                  {e.total_usuarios ?? 0} accesos
+                </span>
+              </div>
+              <div className="card-body">
+                {e.rut              && <p><span>🪪</span><span><strong>RUT:</strong> {e.rut}</span></p>}
+                {e.nombre_contacto  && <p><span>👤</span><span>{e.nombre_contacto}</span></p>}
+                {e.telefono_contacto && <p><span>📞</span><span>{e.telefono_contacto}</span></p>}
+                {e.correo_contacto  && <p><span>✉️</span><span>{e.correo_contacto}</span></p>}
+              </div>
+              <div className="card-footer">
+                <button className="btn btn-primary btn-sm"   onClick={() => abrirPanel(e)}>Usuarios</button>
+                <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(e)}>Editar</button>
+                <button className="btn btn-danger btn-sm"    onClick={() => eliminar(e.id)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
