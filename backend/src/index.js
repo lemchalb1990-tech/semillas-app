@@ -8,6 +8,7 @@ const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
 const empresasRoutes = require('./routes/empresas');
+const pool           = require('./db/connection');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,15 +31,51 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-  console.log(`  POST /api/auth/registro`);
-  console.log(`  POST /api/auth/login`);
-  console.log(`  GET  /api/auth/perfil`);
-  console.log(`  GET  /api/proyectos`);
-  console.log(`  POST /api/proyectos`);
-  console.log(`  GET  /api/empresas`);
-  console.log(`  POST /api/empresas`);
-});
+async function iniciarServidor() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS empresas (
+        id          SERIAL PRIMARY KEY,
+        nombre      VARCHAR(200) NOT NULL,
+        descripcion TEXT,
+        estado      VARCHAR(20) NOT NULL DEFAULT 'activa'
+                      CHECK (estado IN ('activa', 'inactiva')),
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS empresa_usuarios (
+        empresa_id  INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+        usuario_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (empresa_id, usuario_id)
+      );
+    `);
+    await client.query(`
+      ALTER TABLE proyectos
+        ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
+    `);
+    console.log('Tablas verificadas/creadas correctamente');
+  } catch (err) {
+    console.error('Error en migración al inicio:', err.message);
+  } finally {
+    client.release();
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
+    console.log(`  POST /api/auth/registro`);
+    console.log(`  POST /api/auth/login`);
+    console.log(`  GET  /api/auth/perfil`);
+    console.log(`  GET  /api/proyectos`);
+    console.log(`  POST /api/proyectos`);
+    console.log(`  GET  /api/empresas`);
+    console.log(`  POST /api/empresas`);
+  });
+}
+
+iniciarServidor();
 
 module.exports = app;
