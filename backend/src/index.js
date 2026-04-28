@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const bcrypt         = require('bcryptjs');
 const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
@@ -102,11 +103,49 @@ async function migrarTablas() {
     `);
 
     console.log('Tablas verificadas/creadas correctamente');
+    await seedDatos(client);
   } catch (err) {
     console.error('Error en migración (no crítico):', err.message);
   } finally {
     if (client) client.release();
   }
+}
+
+async function seedDatos(client) {
+  const { rowCount } = await client.query('SELECT 1 FROM usuarios LIMIT 1');
+  if (rowCount > 0) return; // ya hay datos, no hacer nada
+
+  const hash = async (pwd) => bcrypt.hash(pwd, 10);
+
+  const { rows: [luis] } = await client.query(
+    `INSERT INTO usuarios (nombre, email, password_hash, rol)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    ['Luis Chavez', 'luis@semillas.com', await hash('Admin2024!'), 'superadmin']
+  );
+  await client.query(
+    `INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1, $2, $3, $4)`,
+    ['Jose Administrador', 'jose@semillas.com', await hash('Admin2024!'), 'admin']
+  );
+  await client.query(
+    `INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1, $2, $3, $4)`,
+    ['Pedro Aguirre', 'pedro@semillas.com', await hash('Admin2024!'), 'gestor']
+  );
+
+  const { rows: [empresa] } = await client.query(
+    `INSERT INTO empresas (nombre, descripcion)
+     VALUES ($1, $2) RETURNING id`,
+    ['Semillas del Valle S.A.', 'Empresa líder en producción y distribución de semillas agrícolas certificadas.']
+  );
+
+  await client.query(
+    `INSERT INTO empresa_usuarios (empresa_id, usuario_id) VALUES ($1, $2)`,
+    [empresa.id, luis.id]
+  );
+
+  console.log('Datos iniciales creados: 3 usuarios + 1 empresa de ejemplo');
+  console.log('  superadmin → luis@semillas.com / Admin2024!');
+  console.log('  admin      → jose@semillas.com / Admin2024!');
+  console.log('  gestor     → pedro@semillas.com / Admin2024!');
 }
 
 app.listen(PORT, () => {
