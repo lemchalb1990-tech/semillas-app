@@ -104,10 +104,11 @@ export default function Empresas() {
 
   return (
     <Layout>
+      <div className="page">
       <div className="page-header">
-        <div>
-          <h1 className="page-title">Empresas</h1>
-          <p className="page-subtitle">Gestión de empresas y sus usuarios asignados</p>
+        <div className="page-header-left">
+          <h2>Gestión de Empresas</h2>
+          <p>Administración de empresas y usuarios asignados</p>
         </div>
         <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva empresa</button>
       </div>
@@ -204,6 +205,8 @@ export default function Empresas() {
           </div>
         </div>
       )}
+
+      </div>{/* fin .page */}
 
       {/* Panel de usuarios */}
       {panelUsuarios && (
