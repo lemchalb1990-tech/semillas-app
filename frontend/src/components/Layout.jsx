@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from './Sidebar';
+import SyncBanner from './SyncBanner';
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,6 +16,8 @@ export default function Layout({ children }) {
             <span /><span /><span />
           </button>
         </header>
+
+        <SyncBanner />
 
         {children}
       </div>

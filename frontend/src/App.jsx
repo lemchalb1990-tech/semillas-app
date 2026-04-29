@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SyncProvider } from './context/SyncContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
@@ -30,6 +31,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+      <SyncProvider>
         <Routes>
           <Route path="/login"    element={<Login />} />
           <Route path="/registro" element={<Registro />} />
@@ -53,6 +55,7 @@ export default function App() {
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+      </SyncProvider>
       </AuthProvider>
     </BrowserRouter>
   );
