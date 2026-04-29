@@ -130,7 +130,7 @@ export default function Proveedores() {
             <h2>Proveedores</h2>
             <p>Catálogo de proveedores por empresa</p>
           </div>
-          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+          <div className="page-header-actions">
             <ViewToggle mode={modo} onChange={setModo} />
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo proveedor</button>
@@ -139,30 +139,22 @@ export default function Proveedores() {
         </div>
 
         {/* Filtros */}
-        <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <div className="filtros">
           <input
             type="text"
-            placeholder="Buscar por nombre..."
+            placeholder="🔍 Buscar por nombre..."
             value={filtroNombre}
             onChange={e => setFiltroNombre(e.target.value)}
-            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem' }}
           />
-          <select
-            value={filtroEspecie}
-            onChange={e => setFiltroEspecie(e.target.value)}
-            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem', background: '#fff' }}
-          >
+          <select value={filtroEspecie} onChange={e => setFiltroEspecie(e.target.value)}>
             <option value="">Todas las especies</option>
             {todasLasEspecies.map(e => (
               <option key={e.id} value={e.id}>🌿 {e.nombre}</option>
             ))}
           </select>
           {(filtroNombre || filtroEspecie) && (
-            <button
-              className="btn btn-secondary"
-              onClick={() => { setFiltroNombre(''); setFiltroEspecie(''); }}
-            >
-              Limpiar filtros
+            <button className="btn btn-ghost btn-sm" onClick={() => { setFiltroNombre(''); setFiltroEspecie(''); }}>
+              ✕ Limpiar filtros
             </button>
           )}
         </div>

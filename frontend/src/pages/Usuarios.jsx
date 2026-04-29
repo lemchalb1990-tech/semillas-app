@@ -143,7 +143,7 @@ export default function Usuarios() {
             <h2>Gestión de Usuarios</h2>
             <p>Administración de cuentas y roles del sistema</p>
           </div>
-          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+          <div className="page-header-actions">
             <ViewToggle mode={modo} onChange={setModo} />
             <button className="btn btn-primary" onClick={abrirNuevo}>+ Nuevo usuario</button>
           </div>

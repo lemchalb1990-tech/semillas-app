@@ -98,7 +98,7 @@ export default function Especies() {
             <h2>Especies</h2>
             <p>Catálogo de especies por empresa</p>
           </div>
-          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+          <div className="page-header-actions">
             <ViewToggle mode={modo} onChange={setModo} />
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva especie</button>

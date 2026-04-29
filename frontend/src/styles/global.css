@@ -917,3 +917,68 @@ td {
   .stats-bar { grid-template-columns: 1fr 1fr; }
   .page { padding: 1rem; }
 }
+
+/* =====================================================
+   PAGE HEADER ACTIONS (botones derecha del header)
+===================================================== */
+.page-header-actions {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* =====================================================
+   FORM GRIDS EN MODALES (responsivos)
+===================================================== */
+.form-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+
+.campos-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: .5rem;
+  align-items: end;
+}
+
+@media (max-width: 600px) {
+  .form-2col {
+    grid-template-columns: 1fr;
+  }
+  .campos-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .campos-row .campo-ubicacion {
+    grid-column: 1;
+  }
+  .campos-row .campo-mapa-btn {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+  }
+  .campos-row .campo-quitar-btn {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+}
+
+/* Sección empresa en sidebar */
+.sidebar-empresa {
+  font-size: .72rem;
+  color: var(--gris-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

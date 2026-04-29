@@ -147,7 +147,7 @@ export default function Agricultores() {
             <h2>Agricultores</h2>
             <p>Registro de agricultores y sus campos</p>
           </div>
-          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+          <div className="page-header-actions">
             <ViewToggle mode={modo} onChange={setModo} />
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo agricultor</button>
@@ -156,27 +156,22 @@ export default function Agricultores() {
         </div>
 
         {/* Filtros */}
-        <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <div className="filtros">
           <input
             type="text"
-            placeholder="Buscar por nombre..."
+            placeholder="🔍 Buscar por nombre..."
             value={filtroNombre}
             onChange={e => setFiltroNombre(e.target.value)}
-            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem' }}
           />
-          <select
-            value={filtroEspecie}
-            onChange={e => setFiltroEspecie(e.target.value)}
-            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem', background: '#fff' }}
-          >
+          <select value={filtroEspecie} onChange={e => setFiltroEspecie(e.target.value)}>
             <option value="">Todas las especies</option>
             {especiesDisponibles.map(e => (
               <option key={e.id} value={e.id}>🌿 {e.nombre}</option>
             ))}
           </select>
           {(filtroNombre || filtroEspecie) && (
-            <button className="btn btn-secondary" onClick={() => { setFiltroNombre(''); setFiltroEspecie(''); }}>
-              Limpiar filtros
+            <button className="btn btn-ghost btn-sm" onClick={() => { setFiltroNombre(''); setFiltroEspecie(''); }}>
+              ✕ Limpiar filtros
             </button>
           )}
         </div>
@@ -349,7 +344,7 @@ export default function Agricultores() {
                   required
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+              <div className="form-2col">
                 <div className="form-group">
                   <label>N° Teléfono</label>
                   <input
@@ -388,7 +383,7 @@ export default function Agricultores() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
                   {campos.map((c, idx) => (
-                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '.5rem', alignItems: 'end' }}>
+                    <div key={idx} className="campos-row">
                       <div className="form-group" style={{ margin: 0 }}>
                         {idx === 0 && <label>Nombre del campo</label>}
                         <input
@@ -397,7 +392,7 @@ export default function Agricultores() {
                           placeholder="Ej: Parcela Norte"
                         />
                       </div>
-                      <div className="form-group" style={{ margin: 0 }}>
+                      <div className="form-group campo-ubicacion" style={{ margin: 0 }}>
                         {idx === 0 && <label>Ubicación</label>}
                         <input
                           value={c.ubicacion}
@@ -410,12 +405,14 @@ export default function Agricultores() {
                       </div>
                       <button
                         type="button"
+                        className="campo-mapa-btn"
                         onClick={() => setMapaIdx(idx)}
                         style={{ background: 'none', border: '1px solid var(--gris-200)', borderRadius: 6, color: 'var(--gris-500)', cursor: 'pointer', fontSize: '1rem', padding: '6px 8px', lineHeight: 1 }}
                         title="Abrir mapa"
                       >🗺️</button>
                       <button
                         type="button"
+                        className="campo-quitar-btn"
                         onClick={() => quitarCampo(idx)}
                         style={{ background: 'none', border: 'none', color: 'var(--gris-400)', cursor: 'pointer', fontSize: '1.1rem', padding: '6px', lineHeight: 1 }}
                         title="Quitar campo"
