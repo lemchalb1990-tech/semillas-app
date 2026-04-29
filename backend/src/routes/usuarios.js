@@ -1,6 +1,6 @@
 const express = require('express');
 const { listarUsuarios, buscarPorId, crearUsuario, actualizarUsuario, eliminarUsuario, resetearPassword } = require('../models/User');
-const { empresasDeUsuario, asignarUsuario } = require('../models/Empresa');
+const { empresasDeUsuario, asignarUsuario, desasignarUsuario } = require('../models/Empresa');
 const { verificarToken, soloAdmin, nivelRol } = require('../middleware/auth');
 
 const router = express.Router();
@@ -82,6 +82,14 @@ router.put('/:id', verificarToken, soloAdmin, async (req, res) => {
     }
 
     const usuario = await actualizarUsuario(id, { nombre, email, rol });
+
+    // Solo superadmin puede reasignar empresa
+    if (req.usuario.rol === 'superadmin' && empresaId !== undefined) {
+      const actuales = await empresasDeUsuario(id);
+      for (const eid of actuales) await desasignarUsuario(eid, id);
+      if (empresaId) await asignarUsuario(parseInt(empresaId), id);
+    }
+
     res.json({ usuario });
   } catch (err) {
     console.error('Error al actualizar usuario:', err);

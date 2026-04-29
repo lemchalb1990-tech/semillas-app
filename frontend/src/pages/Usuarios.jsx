@@ -75,7 +75,7 @@ export default function Usuarios() {
   useEffect(() => { cargar(); }, []);
 
   function abrirNuevo() { setForm(FORM_VACIO); setError(''); setModal('nuevo'); }
-  function abrirEditar(u) { setForm({ nombre: u.nombre, email: u.email, password: '', rol: u.rol }); setError(''); setModal(u); }
+  function abrirEditar(u) { setForm({ nombre: u.nombre, email: u.email, password: '', rol: u.rol, empresaId: u.empresa_id ? String(u.empresa_id) : '' }); setError(''); setModal(u); }
   function onChange(e) { setForm({ ...form, [e.target.name]: e.target.value }); }
 
   async function guardar(e) {
@@ -85,7 +85,9 @@ export default function Usuarios() {
       if (modal === 'nuevo') {
         await api.post('/usuarios', form);
       } else {
-        await api.put(`/usuarios/${modal.id}`, { nombre: form.nombre, email: form.email, rol: form.rol });
+        const payload = { nombre: form.nombre, email: form.email, rol: form.rol };
+        if (esSuperadmin) payload.empresaId = form.empresaId || '';
+        await api.put(`/usuarios/${modal.id}`, payload);
       }
       setModal(null);
       cargar();
@@ -284,7 +286,7 @@ export default function Usuarios() {
                   ))}
                 </select>
               </div>
-              {esSuperadmin && modal === 'nuevo' && (
+              {esSuperadmin && (
                 <div className="form-group">
                   <label>Empresa asignada</label>
                   <select name="empresaId" value={form.empresaId} onChange={onChange}>

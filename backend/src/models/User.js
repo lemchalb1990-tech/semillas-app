@@ -48,7 +48,11 @@ async function actualizarPerfil(id, { nombre, passwordNueva }) {
 
 async function listarUsuarios() {
   const { rows } = await pool.query(
-    `SELECT id, nombre, email, rol, created_at FROM usuarios ORDER BY created_at DESC`
+    `SELECT u.id, u.nombre, u.email, u.rol, u.created_at,
+            eu.empresa_id
+     FROM usuarios u
+     LEFT JOIN empresa_usuarios eu ON eu.usuario_id = u.id
+     ORDER BY u.created_at DESC`
   );
   return rows;
 }
