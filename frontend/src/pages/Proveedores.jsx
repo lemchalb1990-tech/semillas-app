@@ -208,8 +208,6 @@ export default function Proveedores() {
                       ) : (
                         <p style={{ color: 'var(--gris-400)', fontSize: '.85rem', margin: 0 }}>Sin especies asignadas</p>
                       )}
-                      <p style={{ marginTop: '.5rem' }}><span>👤</span><span>Creado por: {p.creado_por_nombre || '—'}</span></p>
-                      <p><span>📅</span><span>{new Date(p.created_at).toLocaleDateString('es-CO')}</span></p>
                     </div>
                     {esAdmin && (
                       <div className="card-footer">

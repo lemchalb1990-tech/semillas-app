@@ -131,8 +131,6 @@ export default function Especies() {
                     </div>
                     <div className="card-body">
                       {e.descripcion && <p><span></span><span>{e.descripcion}</span></p>}
-                      <p><span>👤</span><span>Creado por: {e.creado_por_nombre || '—'}</span></p>
-                      <p><span>📅</span><span>{new Date(e.created_at).toLocaleDateString('es-CO')}</span></p>
                     </div>
                     {esAdmin && (
                       <div className="card-footer">

@@ -213,7 +213,7 @@ export default function Agricultores() {
                         <div style={{ marginTop: '.5rem' }}>
                           <p style={{ fontWeight: 600, fontSize: '.8rem', color: 'var(--gris-500)', marginBottom: '.3rem' }}>CAMPOS</p>
                           {ag.campos.map((c, i) => (
-                            <p key={i}><span>🌾</span><span>{c.nombre}{c.ubicacion ? ` — ${c.ubicacion}` : ''}</span></p>
+                            <p key={i}><span>🌾</span><span>{c.nombre}</span></p>
                           ))}
                         </div>
                       )}
@@ -234,7 +234,6 @@ export default function Agricultores() {
                         </div>
                       )}
 
-                      <p style={{ marginTop: '.5rem' }}><span>📅</span><span>{new Date(ag.created_at).toLocaleDateString('es-CO')}</span></p>
                     </div>
                     {esAdmin && (
                       <div className="card-footer">

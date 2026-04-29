@@ -194,9 +194,6 @@ export default function Usuarios() {
                   </div>
                   <RolBadge rol={u.rol} />
                 </div>
-                <div className="card-body">
-                  <p><span>📅</span><span>Registro: {new Date(u.created_at).toLocaleDateString('es-CO')}</span></p>
-                </div>
                 {puedeEditar(u) && (
                   <div className="card-footer">
                     <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
