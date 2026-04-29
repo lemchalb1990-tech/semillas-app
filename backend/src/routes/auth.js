@@ -86,23 +86,25 @@ router.get('/perfil', verificarToken, async (req, res) => {
   }
 });
 
-// PUT /api/auth/perfil
+// PUT /api/auth/perfil — actualiza nombre y/o contraseña (email no se puede cambiar)
 router.put('/perfil', verificarToken, async (req, res) => {
-  const { nombre, email } = req.body;
+  const { nombre, passwordActual, passwordNueva } = req.body;
 
-  if (!nombre && !email) {
-    return res.status(400).json({ error: 'Debe enviar al menos un campo a actualizar' });
+  if (!nombre && !passwordNueva) {
+    return res.status(400).json({ error: 'Debe enviar nombre o contraseña nueva' });
   }
 
   try {
-    if (email) {
-      const existente = await buscarPorEmail(email);
-      if (existente && existente.id !== req.usuario.id) {
-        return res.status(409).json({ error: 'El email ya está en uso por otra cuenta' });
-      }
+    if (passwordNueva) {
+      if (!passwordActual) return res.status(400).json({ error: 'Debes ingresar tu contraseña actual' });
+      if (passwordNueva.length < 8) return res.status(400).json({ error: 'La contraseña nueva debe tener al menos 8 caracteres' });
+
+      const usuarioCompleto = await buscarPorEmail(req.usuario.email);
+      const valida = await verificarPassword(passwordActual, usuarioCompleto.password_hash);
+      if (!valida) return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
     }
 
-    const usuario = await actualizarPerfil(req.usuario.id, { nombre, email });
+    const usuario = await actualizarPerfil(req.usuario.id, { nombre, passwordNueva });
     res.json({ usuario });
   } catch (err) {
     console.error('Error al actualizar perfil:', err);

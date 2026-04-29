@@ -30,15 +30,18 @@ async function buscarPorId(id) {
   return rows[0] || null;
 }
 
-async function actualizarPerfil(id, { nombre, email }) {
+async function actualizarPerfil(id, { nombre, passwordNueva }) {
+  let passwordHash = null;
+  if (passwordNueva) passwordHash = await bcrypt.hash(passwordNueva, SALT_ROUNDS);
+
   const { rows } = await pool.query(
     `UPDATE usuarios
-     SET nombre = COALESCE($1, nombre),
-         email  = COALESCE($2, email),
-         updated_at = NOW()
+     SET nombre        = COALESCE($1, nombre),
+         password_hash = COALESCE($2, password_hash),
+         updated_at    = NOW()
      WHERE id = $3
      RETURNING id, nombre, email, rol, created_at`,
-    [nombre, email, id]
+    [nombre || null, passwordHash, id]
   );
   return rows[0] || null;
 }

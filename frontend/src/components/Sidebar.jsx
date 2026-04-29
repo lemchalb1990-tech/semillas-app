@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PerfilModal from './PerfilModal';
 
 const ROL_LABEL = { superadmin: 'Superadministrador', admin: 'Administrador', gestor: 'Gestor' };
 const ROL_COLOR = {
@@ -11,6 +13,7 @@ const ROL_COLOR = {
 export default function Sidebar({ open, onClose }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
+  const [perfilAbierto, setPerfilAbierto] = useState(false);
   const esAdmin      = ['superadmin', 'admin'].includes(usuario?.rol);
   const esSuperadmin = usuario?.rol === 'superadmin';
   const iniciales = usuario?.nombre?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
@@ -68,7 +71,12 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-user">
+          <div
+            className="sidebar-user"
+            onClick={() => setPerfilAbierto(true)}
+            style={{ cursor: 'pointer' }}
+            title="Editar perfil"
+          >
             <div
               className="sidebar-avatar"
               style={{ background: colores.bg, color: colores.text }}
@@ -84,12 +92,15 @@ export default function Sidebar({ open, onClose }) {
                 {ROL_LABEL[usuario?.rol]}
               </span>
             </div>
+            <span style={{ marginLeft: 'auto', fontSize: '.8rem', color: 'var(--gris-400)' }}>✏️</span>
           </div>
           <button className="sidebar-logout" onClick={handleLogout}>
             ↩ Cerrar sesión
           </button>
         </div>
       </aside>
+
+      {perfilAbierto && <PerfilModal onCerrar={() => setPerfilAbierto(false)} />}
     </>
   );
 }
