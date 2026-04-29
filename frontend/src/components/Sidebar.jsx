@@ -55,6 +55,10 @@ export default function Sidebar({ open, onClose }) {
             <span className="sidebar-nav-icon">🏭</span>
             Proveedores
           </NavLink>
+          <NavLink to="/agricultores" onClick={onClose}>
+            <span className="sidebar-nav-icon">🧑‍🌾</span>
+            Agricultores
+          </NavLink>
           {esSuperadmin && (
             <NavLink to="/empresas" onClick={onClose}>
               <span className="sidebar-nav-icon">🏢</span>

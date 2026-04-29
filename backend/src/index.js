@@ -9,8 +9,9 @@ const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
 const empresasRoutes = require('./routes/empresas');
-const especiesRoutes    = require('./routes/especies');
-const proveedoresRoutes = require('./routes/proveedores');
+const especiesRoutes     = require('./routes/especies');
+const proveedoresRoutes  = require('./routes/proveedores');
+const agricultoresRoutes = require('./routes/agricultores');
 const pool           = require('./db/connection');
 
 const app = express();
@@ -28,8 +29,9 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/empresas',  empresasRoutes);
-app.use('/api/especies',    especiesRoutes);
-app.use('/api/proveedores', proveedoresRoutes);
+app.use('/api/especies',      especiesRoutes);
+app.use('/api/proveedores',  proveedoresRoutes);
+app.use('/api/agricultores', agricultoresRoutes);
 
 // 404 genérico
 app.use((req, res) => {
@@ -134,6 +136,37 @@ async function migrarTablas() {
         creado_por  INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS agricultores (
+        id               SERIAL PRIMARY KEY,
+        nombre_contacto  VARCHAR(200) NOT NULL,
+        telefono         VARCHAR(30),
+        contacto_campo   VARCHAR(200),
+        empresa_id       INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+        creado_por       INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+        created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS agricultor_campos (
+        id            SERIAL PRIMARY KEY,
+        agricultor_id INTEGER NOT NULL REFERENCES agricultores(id) ON DELETE CASCADE,
+        nombre        VARCHAR(200) NOT NULL,
+        ubicacion     VARCHAR(255),
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS agricultor_especies (
+        agricultor_id INTEGER NOT NULL REFERENCES agricultores(id) ON DELETE CASCADE,
+        especie_id    INTEGER NOT NULL REFERENCES especies(id)    ON DELETE CASCADE,
+        PRIMARY KEY (agricultor_id, especie_id)
       );
     `);
 

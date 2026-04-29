@@ -8,6 +8,7 @@ import Usuarios from './pages/Usuarios';
 import Empresas from './pages/Empresas';
 import Especies from './pages/Especies';
 import Proveedores from './pages/Proveedores';
+import Agricultores from './pages/Agricultores';
 import './styles/global.css';
 
 function RutaAdmin({ children }) {
@@ -46,6 +47,9 @@ export default function App() {
           } />
           <Route path="/proveedores" element={
             <ProtectedRoute><Proveedores /></ProtectedRoute>
+          } />
+          <Route path="/agricultores" element={
+            <ProtectedRoute><Agricultores /></ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
