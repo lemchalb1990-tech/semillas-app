@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Usuarios from './pages/Usuarios';
 import Empresas from './pages/Empresas';
 import Especies from './pages/Especies';
+import Proveedores from './pages/Proveedores';
 import './styles/global.css';
 
 function RutaAdmin({ children }) {
@@ -42,6 +43,9 @@ export default function App() {
           } />
           <Route path="/especies" element={
             <ProtectedRoute><Especies /></ProtectedRoute>
+          } />
+          <Route path="/proveedores" element={
+            <ProtectedRoute><Proveedores /></ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

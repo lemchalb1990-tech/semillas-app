@@ -9,7 +9,8 @@ const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
 const empresasRoutes = require('./routes/empresas');
-const especiesRoutes = require('./routes/especies');
+const especiesRoutes    = require('./routes/especies');
+const proveedoresRoutes = require('./routes/proveedores');
 const pool           = require('./db/connection');
 
 const app = express();
@@ -27,7 +28,8 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/empresas',  empresasRoutes);
-app.use('/api/especies',  especiesRoutes);
+app.use('/api/especies',    especiesRoutes);
+app.use('/api/proveedores', proveedoresRoutes);
 
 // 404 genérico
 app.use((req, res) => {
@@ -98,6 +100,29 @@ async function migrarTablas() {
     await client.query(`
       ALTER TABLE proyectos
         ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS proveedores (
+        id          SERIAL PRIMARY KEY,
+        nombre      VARCHAR(200) NOT NULL,
+        rut         VARCHAR(20),
+        contacto    VARCHAR(100),
+        telefono    VARCHAR(30),
+        correo      VARCHAR(100),
+        empresa_id  INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+        creado_por  INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS proveedor_especies (
+        proveedor_id INTEGER NOT NULL REFERENCES proveedores(id) ON DELETE CASCADE,
+        especie_id   INTEGER NOT NULL REFERENCES especies(id)   ON DELETE CASCADE,
+        PRIMARY KEY (proveedor_id, especie_id)
+      );
     `);
 
     await client.query(`
