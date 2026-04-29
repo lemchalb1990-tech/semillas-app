@@ -24,6 +24,8 @@ export default function Proveedores() {
   const [especiesDisponibles, setEspeciesDisponibles] = useState([]);
   const [especiesSeleccionadas, setEspeciesSeleccionadas] = useState([]);
   const [modo, setModo]                 = useViewMode('proveedores', 'cards');
+  const [filtroNombre, setFiltroNombre] = useState('');
+  const [filtroEspecie, setFiltroEspecie] = useState('');
 
   useEffect(() => { cargar(); }, []);
 
@@ -103,7 +105,15 @@ export default function Proveedores() {
     }
   }
 
-  const agrupadosPorEmpresa = proveedores.reduce((acc, p) => {
+  const proveedoresFiltrados = proveedores.filter(p => {
+    const coincideNombre  = p.nombre.toLowerCase().includes(filtroNombre.toLowerCase());
+    const coincideEspecie = !filtroEspecie || (p.especies || []).some(e => e.id === parseInt(filtroEspecie));
+    return coincideNombre && coincideEspecie;
+  });
+
+  const todasLasEspecies = especiesDisponibles;
+
+  const agrupadosPorEmpresa = proveedoresFiltrados.reduce((acc, p) => {
     const key = p.empresa_nombre || 'Sin empresa';
     if (!acc[key]) acc[key] = [];
     acc[key].push(p);
@@ -128,6 +138,35 @@ export default function Proveedores() {
           </div>
         </div>
 
+        {/* Filtros */}
+        <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={filtroNombre}
+            onChange={e => setFiltroNombre(e.target.value)}
+            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem' }}
+          />
+          <select
+            value={filtroEspecie}
+            onChange={e => setFiltroEspecie(e.target.value)}
+            style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--gris-200)', borderRadius: 8, fontSize: '.9rem', background: '#fff' }}
+          >
+            <option value="">Todas las especies</option>
+            {todasLasEspecies.map(e => (
+              <option key={e.id} value={e.id}>🌿 {e.nombre}</option>
+            ))}
+          </select>
+          {(filtroNombre || filtroEspecie) && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => { setFiltroNombre(''); setFiltroEspecie(''); }}
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+
         {cargando ? (
           <div className="spinner-wrap"><div className="spinner" /></div>
         ) : proveedores.length === 0 ? (
@@ -135,6 +174,12 @@ export default function Proveedores() {
             <div className="empty-icon">🏭</div>
             <h3>Sin proveedores aún</h3>
             {esAdmin && <p>Crea el primer proveedor haciendo clic en "Nuevo proveedor"</p>}
+          </div>
+        ) : proveedoresFiltrados.length === 0 ? (
+          <div className="empty">
+            <div className="empty-icon">🔍</div>
+            <h3>Sin resultados</h3>
+            <p>No hay proveedores que coincidan con los filtros aplicados.</p>
           </div>
         ) : modo === 'cards' ? (
           Object.entries(agrupadosPorEmpresa).map(([empresa, lista]) => (
