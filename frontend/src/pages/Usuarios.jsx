@@ -51,6 +51,9 @@ export default function Usuarios() {
   const [error, setError]               = useState('');
   const [guardando, setGuardando]       = useState(false);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+  const [resetando, setResetando]           = useState(null);
+  const [passwordGenerada, setPasswordGenerada] = useState(null);
+  const [copiado, setCopiado]               = useState(false);
   const [modo, setModo] = useViewMode('usuarios', 'cards');
 
   async function cargar() {
@@ -96,6 +99,23 @@ export default function Usuarios() {
   async function eliminar(id) {
     try { await api.delete(`/usuarios/${id}`); setConfirmEliminar(null); cargar(); }
     catch (err) { alert(err.response?.data?.error || 'Error al eliminar'); }
+  }
+
+  async function confirmarReset() {
+    try {
+      const { data } = await api.post(`/usuarios/${resetando.id}/reset-password`);
+      setResetando(null);
+      setPasswordGenerada({ usuario: resetando, pwd: data.passwordTemporal });
+      setCopiado(false);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Error al restaurar contraseña');
+    }
+  }
+
+  function copiar() {
+    navigator.clipboard.writeText(passwordGenerada.pwd);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2000);
   }
 
   const rolesDisponibles = esSuperadmin ? ROLES_VALIDOS : ['admin', 'gestor'];
@@ -178,6 +198,7 @@ export default function Usuarios() {
                 {puedeEditar(u) && (
                   <div className="card-footer">
                     <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setResetando(u)} title="Restaurar contraseña">🔑</button>
                     <button className="btn btn-danger btn-sm"    onClick={() => setConfirmEliminar(u)}>Eliminar</button>
                   </div>
                 )}
@@ -217,6 +238,7 @@ export default function Usuarios() {
                           {puedeEditar(u) ? (
                             <>
                               <button className="btn btn-secondary btn-sm" onClick={() => abrirEditar(u)}>Editar</button>
+                              <button className="btn btn-secondary btn-sm" onClick={() => setResetando(u)} title="Restaurar contraseña">🔑</button>
                               <button className="btn btn-danger btn-sm"    onClick={() => setConfirmEliminar(u)}>Eliminar</button>
                             </>
                           ) : <span className="td-muted">—</span>}
@@ -303,6 +325,54 @@ export default function Usuarios() {
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setConfirmEliminar(null)}>Cancelar</button>
               <button className="btn btn-danger" onClick={() => eliminar(confirmEliminar.id)}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmar restaurar contraseña */}
+      {resetando && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Restaurar contraseña</h3>
+              <button className="modal-close" onClick={() => setResetando(null)}>✕</button>
+            </div>
+            <p style={{ color: 'var(--gris-600)', fontSize: '.9rem' }}>
+              Se generará una contraseña aleatoria para <strong>{resetando.nombre}</strong>. El usuario deberá cambiarla al ingresar.
+            </p>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setResetando(null)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={confirmarReset}>Restaurar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mostrar contraseña generada */}
+      {passwordGenerada && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Contraseña restaurada</h3>
+              <button className="modal-close" onClick={() => setPasswordGenerada(null)}>✕</button>
+            </div>
+            <p style={{ color: 'var(--gris-600)', fontSize: '.9rem', marginBottom: '1rem' }}>
+              Nueva contraseña temporal para <strong>{passwordGenerada.usuario.nombre}</strong>. Cópiala y compártela con el usuario.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', background: 'var(--gris-50,#f9fafb)', border: '1px solid var(--gris-200)', borderRadius: 8, padding: '.75rem 1rem' }}>
+              <code style={{ flex: 1, fontSize: '1.1rem', fontWeight: 700, letterSpacing: '.1em', color: 'var(--gris-800)' }}>
+                {passwordGenerada.pwd}
+              </code>
+              <button className="btn btn-secondary btn-sm" onClick={copiar} style={{ whiteSpace: 'nowrap' }}>
+                {copiado ? '✓ Copiado' : 'Copiar'}
+              </button>
+            </div>
+            <p style={{ fontSize: '.78rem', color: 'var(--gris-400)', marginTop: '.75rem' }}>
+              ⚠ Esta contraseña no se volverá a mostrar. Guárdala antes de cerrar.
+            </p>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setPasswordGenerada(null)}>Entendido</button>
             </div>
           </div>
         </div>

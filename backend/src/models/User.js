@@ -72,6 +72,18 @@ async function eliminarUsuario(id) {
   return rowCount > 0;
 }
 
+async function resetearPassword(id) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let plain = '';
+  for (let i = 0; i < 10; i++) plain += chars[Math.floor(Math.random() * chars.length)];
+  const hash = await bcrypt.hash(plain, SALT_ROUNDS);
+  await pool.query(
+    `UPDATE usuarios SET password_hash = $1, updated_at = NOW() WHERE id = $2`,
+    [hash, id]
+  );
+  return plain;
+}
+
 async function verificarPassword(passwordPlano, passwordHash) {
   return bcrypt.compare(passwordPlano, passwordHash);
 }

@@ -1,5 +1,5 @@
 const express = require('express');
-const { listarUsuarios, buscarPorId, crearUsuario, actualizarUsuario, eliminarUsuario } = require('../models/User');
+const { listarUsuarios, buscarPorId, crearUsuario, actualizarUsuario, eliminarUsuario, resetearPassword } = require('../models/User');
 const { empresasDeUsuario, asignarUsuario } = require('../models/Empresa');
 const { verificarToken, soloAdmin, nivelRol } = require('../middleware/auth');
 
@@ -115,6 +115,28 @@ router.delete('/:id', verificarToken, soloAdmin, async (req, res) => {
     res.json({ mensaje: 'Usuario eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar usuario:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// POST /api/usuarios/:id/reset-password — admin/superadmin restaura contraseña
+router.post('/:id/reset-password', verificarToken, soloAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+  if (id === req.usuario.id) return res.status(400).json({ error: 'No puedes restaurar tu propia contraseña desde aquí' });
+
+  try {
+    const objetivo = await buscarPorId(id);
+    if (!objetivo) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (req.usuario.rol === 'admin' && objetivo.rol === 'superadmin') {
+      return res.status(403).json({ error: 'No tienes permiso para modificar superadministradores' });
+    }
+
+    const passwordTemporal = await resetearPassword(id);
+    res.json({ passwordTemporal });
+  } catch (err) {
+    console.error('Error al restaurar contraseña:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
