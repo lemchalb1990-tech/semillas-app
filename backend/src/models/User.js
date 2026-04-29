@@ -90,5 +90,5 @@ async function verificarPassword(passwordPlano, passwordHash) {
 
 module.exports = {
   crearUsuario, buscarPorEmail, buscarPorId, actualizarPerfil,
-  listarUsuarios, actualizarUsuario, eliminarUsuario, verificarPassword,
+  listarUsuarios, actualizarUsuario, eliminarUsuario, resetearPassword, verificarPassword,
 };
