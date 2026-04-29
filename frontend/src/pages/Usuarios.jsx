@@ -295,11 +295,6 @@ export default function Usuarios() {
                   </select>
                 </div>
               )}
-              {!esSuperadmin && modal === 'nuevo' && (
-                <p style={{ fontSize: '.8rem', color: 'var(--gris-500)', marginTop: '.25rem' }}>
-                  El usuario será asignado automáticamente a tu empresa.
-                </p>
-              )}
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setModal(null)}>Cancelar</button>
                 <button type="submit" className="btn btn-primary" disabled={guardando} style={{ minWidth: 120 }}>

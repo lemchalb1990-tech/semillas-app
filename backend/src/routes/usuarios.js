@@ -44,13 +44,8 @@ router.post('/', verificarToken, soloAdmin, async (req, res) => {
 
     const usuario = await crearUsuario({ nombre, email, password, rol });
 
-    // Asignar empresa automáticamente
-    if (req.usuario.rol === 'admin') {
-      // Admin: asignar a todas sus empresas
-      const ids = await empresasDeUsuario(req.usuario.id);
-      for (const id of ids) await asignarUsuario(id, usuario.id);
-    } else if (req.usuario.rol === 'superadmin' && empresaId) {
-      // Superadmin: asignar a la empresa seleccionada
+    // Solo superadmin puede asignar empresa al crear usuario
+    if (req.usuario.rol === 'superadmin' && empresaId) {
       await asignarUsuario(parseInt(empresaId), usuario.id);
     }
 
