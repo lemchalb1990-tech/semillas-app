@@ -130,7 +130,7 @@ export default function Proveedores() {
             <h2>Proveedores</h2>
             <p>Catálogo de proveedores por empresa</p>
           </div>
-          <div className="page-header-actions">
+          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
             <ViewToggle mode={modo} onChange={setModo} />
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo proveedor</button>

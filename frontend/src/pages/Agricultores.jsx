@@ -147,7 +147,7 @@ export default function Agricultores() {
             <h2>Agricultores</h2>
             <p>Registro de agricultores y sus campos</p>
           </div>
-          <div className="page-header-actions">
+          <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
             <ViewToggle mode={modo} onChange={setModo} />
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo agricultor</button>

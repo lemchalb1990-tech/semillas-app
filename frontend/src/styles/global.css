@@ -919,23 +919,6 @@ td {
 }
 
 /* =====================================================
-   PAGE HEADER ACTIONS (botones derecha del header)
-===================================================== */
-.page-header-actions {
-  display: flex;
-  gap: .75rem;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-  .page-header-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
-
-/* =====================================================
    FORM GRIDS EN MODALES (responsivos)
 ===================================================== */
 .form-2col {
