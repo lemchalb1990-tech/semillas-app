@@ -92,7 +92,7 @@ export default function Sidebar({ open, onClose }) {
                 {ROL_LABEL[usuario?.rol]}
               </span>
             </div>
-            <span style={{ marginLeft: 'auto', fontSize: '.8rem', color: 'var(--gris-400)' }}>✏️</span>
+            <span style={{ marginLeft: 'auto', fontSize: '.9rem', color: 'var(--gris-400)' }}>⚙️</span>
           </div>
           <button className="sidebar-logout" onClick={handleLogout}>
             ↩ Cerrar sesión
