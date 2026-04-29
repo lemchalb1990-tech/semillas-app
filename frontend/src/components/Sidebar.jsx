@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PerfilModal from './PerfilModal';
+import { useInstallPWA } from '../hooks/useInstallPWA';
 import api from '../api/client';
 
 const ROL_LABEL = { superadmin: 'Superadministrador', admin: 'Administrador', gestor: 'Gestor' };
@@ -15,7 +16,9 @@ export default function Sidebar({ open, onClose }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const [perfilAbierto, setPerfilAbierto] = useState(false);
-  const [empresa, setEmpresa] = useState(null);
+  const [empresa, setEmpresa]             = useState(null);
+  const [iosModal, setIosModal]           = useState(false);
+  const { prompt, instalada, esIOS, instalar } = useInstallPWA();
   const esAdmin      = ['superadmin', 'admin'].includes(usuario?.rol);
   const esSuperadmin = usuario?.rol === 'superadmin';
 
@@ -102,6 +105,24 @@ export default function Sidebar({ open, onClose }) {
             </div>
             <span style={{ marginLeft: 'auto', fontSize: '.9rem', color: 'var(--gris-400)' }}>⚙️</span>
           </div>
+          {/* Botón instalar app */}
+          {!instalada && (prompt || esIOS) && (
+            <button
+              onClick={esIOS ? () => setIosModal(true) : instalar}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '.5rem',
+                width: '100%', padding: '7px 10px', marginBottom: '.25rem',
+                background: 'var(--verde-50,#f0fdf4)',
+                border: '1px solid var(--verde-200,#bbf7d0)',
+                borderRadius: 8, cursor: 'pointer',
+                color: 'var(--verde-700,#15803d)', fontSize: '.82rem', fontWeight: 600,
+              }}
+            >
+              <span>{esIOS ? '📱' : '💻'}</span>
+              <span>{esIOS ? 'Instalar en móvil' : 'Instalar aplicación'}</span>
+            </button>
+          )}
+
           <button className="sidebar-logout" onClick={handleLogout}>
             ↩ Cerrar sesión
           </button>
@@ -109,6 +130,33 @@ export default function Sidebar({ open, onClose }) {
       </aside>
 
       {perfilAbierto && <PerfilModal onCerrar={() => setPerfilAbierto(false)} />}
+
+      {/* Modal instrucciones iOS */}
+      {iosModal && (
+        <div className="modal-overlay" onClick={() => setIosModal(false)}>
+          <div className="modal" style={{ maxWidth: 360 }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📱 Instalar en iPhone / iPad</h3>
+              <button className="modal-close" onClick={() => setIosModal(false)}>✕</button>
+            </div>
+            <div style={{ fontSize: '.9rem', color: 'var(--gris-600)', lineHeight: 1.7 }}>
+              <p style={{ marginBottom: '.75rem' }}>Para instalar la app en tu dispositivo iOS:</p>
+              <ol style={{ paddingLeft: '1.2rem', margin: 0 }}>
+                <li>Abre esta página en <strong>Safari</strong></li>
+                <li>Toca el botón <strong>Compartir</strong> <span style={{ fontSize: '1rem' }}>⬆</span></li>
+                <li>Selecciona <strong>"Agregar a pantalla de inicio"</strong></li>
+                <li>Toca <strong>"Agregar"</strong></li>
+              </ol>
+              <p style={{ marginTop: '.75rem', fontSize: '.8rem', color: 'var(--gris-400)' }}>
+                La app funcionará sin conexión a internet una vez instalada.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setIosModal(false)}>Entendido</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
