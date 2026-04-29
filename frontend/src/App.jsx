@@ -6,6 +6,7 @@ import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import Usuarios from './pages/Usuarios';
 import Empresas from './pages/Empresas';
+import Especies from './pages/Especies';
 import './styles/global.css';
 
 function RutaAdmin({ children }) {
@@ -38,6 +39,9 @@ export default function App() {
           } />
           <Route path="/empresas" element={
             <RutaSuperadmin><Empresas /></RutaSuperadmin>
+          } />
+          <Route path="/especies" element={
+            <ProtectedRoute><Especies /></ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

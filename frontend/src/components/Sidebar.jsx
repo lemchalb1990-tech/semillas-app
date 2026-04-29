@@ -47,6 +47,10 @@ export default function Sidebar({ open, onClose }) {
               Usuarios
             </NavLink>
           )}
+          <NavLink to="/especies" onClick={onClose}>
+            <span className="sidebar-nav-icon">🌿</span>
+            Especies
+          </NavLink>
           {esSuperadmin && (
             <NavLink to="/empresas" onClick={onClose}>
               <span className="sidebar-nav-icon">🏢</span>

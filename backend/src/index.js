@@ -9,6 +9,7 @@ const authRoutes     = require('./routes/auth');
 const projectRoutes  = require('./routes/projects');
 const usuariosRoutes = require('./routes/usuarios');
 const empresasRoutes = require('./routes/empresas');
+const especiesRoutes = require('./routes/especies');
 const pool           = require('./db/connection');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/proyectos', projectRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/empresas',  empresasRoutes);
+app.use('/api/especies',  especiesRoutes);
 
 // 404 genérico
 app.use((req, res) => {
@@ -96,6 +98,18 @@ async function migrarTablas() {
     await client.query(`
       ALTER TABLE proyectos
         ADD COLUMN IF NOT EXISTS empresa_id INTEGER REFERENCES empresas(id) ON DELETE SET NULL;
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS especies (
+        id          SERIAL PRIMARY KEY,
+        nombre      VARCHAR(200) NOT NULL,
+        descripcion TEXT,
+        empresa_id  INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+        creado_por  INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
 
     console.log('Tablas verificadas/creadas correctamente');
