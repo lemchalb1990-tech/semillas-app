@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import ViewToggle from '../components/ViewToggle';
+import MapPicker from '../components/MapPicker';
 import { useViewMode } from '../hooks/useViewMode';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
@@ -27,6 +28,7 @@ export default function Agricultores() {
   const [especiesSeleccionadas, setEspeciesSeleccionadas] = useState([]);
   const [filtroNombre, setFiltroNombre]   = useState('');
   const [filtroEspecie, setFiltroEspecie] = useState('');
+  const [mapaIdx, setMapaIdx]             = useState(null);
   const [modo, setModo]                   = useViewMode('agricultores', 'cards');
 
   useEffect(() => { cargar(); }, []);
@@ -386,7 +388,7 @@ export default function Agricultores() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
                   {campos.map((c, idx) => (
-                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '.5rem', alignItems: 'end' }}>
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '.5rem', alignItems: 'end' }}>
                       <div className="form-group" style={{ margin: 0 }}>
                         {idx === 0 && <label>Nombre del campo</label>}
                         <input
@@ -400,9 +402,18 @@ export default function Agricultores() {
                         <input
                           value={c.ubicacion}
                           onChange={e => setCampoField(idx, 'ubicacion', e.target.value)}
-                          placeholder="Ej: Región del Maule"
+                          placeholder="Seleccionar en mapa..."
+                          readOnly
+                          style={{ cursor: 'pointer', background: c.ubicacion ? '#fff' : 'var(--gris-50,#f9fafb)' }}
+                          onClick={() => setMapaIdx(idx)}
                         />
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => setMapaIdx(idx)}
+                        style={{ background: 'none', border: '1px solid var(--gris-200)', borderRadius: 6, color: 'var(--gris-500)', cursor: 'pointer', fontSize: '1rem', padding: '6px 8px', lineHeight: 1 }}
+                        title="Abrir mapa"
+                      >🗺️</button>
                       <button
                         type="button"
                         onClick={() => quitarCampo(idx)}
@@ -464,6 +475,15 @@ export default function Agricultores() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Mapa picker */}
+      {mapaIdx !== null && (
+        <MapPicker
+          valorInicial={campos[mapaIdx]?.ubicacion}
+          onAceptar={dir => { setCampoField(mapaIdx, 'ubicacion', dir); setMapaIdx(null); }}
+          onCancelar={() => setMapaIdx(null)}
+        />
       )}
 
       {/* Confirmar eliminar */}
