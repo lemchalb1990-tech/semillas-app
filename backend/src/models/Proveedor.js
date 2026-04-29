@@ -39,14 +39,14 @@ async function buscarProveedorPorId(id) {
   return rows[0] || null;
 }
 
-async function crearProveedor({ nombre, rut, contacto, telefono, correo, empresaId, creadoPor, especieIds = [] }) {
+async function crearProveedor({ nombre, empresaId, creadoPor, especieIds = [] }) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const { rows: [p] } = await client.query(
-      `INSERT INTO proveedores (nombre, rut, contacto, telefono, correo, empresa_id, creado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [nombre, rut || null, contacto || null, telefono || null, correo || null, empresaId, creadoPor]
+      `INSERT INTO proveedores (nombre, empresa_id, creado_por)
+       VALUES ($1,$2,$3) RETURNING *`,
+      [nombre, empresaId, creadoPor]
     );
     for (const eid of especieIds) {
       await client.query(
@@ -64,20 +64,16 @@ async function crearProveedor({ nombre, rut, contacto, telefono, correo, empresa
   }
 }
 
-async function actualizarProveedor(id, { nombre, rut, contacto, telefono, correo, especieIds }) {
+async function actualizarProveedor(id, { nombre, especieIds }) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const { rows: [p] } = await client.query(
       `UPDATE proveedores
        SET nombre     = COALESCE($1, nombre),
-           rut        = COALESCE($2, rut),
-           contacto   = COALESCE($3, contacto),
-           telefono   = COALESCE($4, telefono),
-           correo     = COALESCE($5, correo),
            updated_at = NOW()
-       WHERE id = $6 RETURNING *`,
-      [nombre, rut, contacto, telefono, correo, id]
+       WHERE id = $2 RETURNING *`,
+      [nombre, id]
     );
     if (!p) { await client.query('ROLLBACK'); return null; }
 

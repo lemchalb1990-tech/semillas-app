@@ -26,7 +26,7 @@ router.get('/', verificarToken, async (req, res) => {
 
 // POST /api/proveedores — solo admin
 router.post('/', verificarToken, soloAdmin, async (req, res) => {
-  const { nombre, rut, contacto, telefono, correo, empresaId, especieIds } = req.body;
+  const { nombre, empresaId, especieIds } = req.body;
   if (!nombre) return res.status(400).json({ error: 'El nombre es obligatorio' });
 
   try {
@@ -41,7 +41,7 @@ router.post('/', verificarToken, soloAdmin, async (req, res) => {
     if (!empId) return res.status(400).json({ error: 'empresaId es obligatorio' });
 
     const proveedor = await crearProveedor({
-      nombre, rut, contacto, telefono, correo,
+      nombre,
       empresaId: empId,
       creadoPor: req.usuario.id,
       especieIds: especieIds || [],
@@ -67,8 +67,8 @@ router.put('/:id', verificarToken, soloAdmin, async (req, res) => {
       }
     }
 
-    const { nombre, rut, contacto, telefono, correo, especieIds } = req.body;
-    const proveedor = await actualizarProveedor(id, { nombre, rut, contacto, telefono, correo, especieIds });
+    const { nombre, especieIds } = req.body;
+    const proveedor = await actualizarProveedor(id, { nombre, especieIds });
     res.json({ proveedor });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -5,7 +5,7 @@ import { useViewMode } from '../hooks/useViewMode';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
 
-const FORM_VACIO = { nombre: '', rut: '', contacto: '', telefono: '', correo: '' };
+const FORM_VACIO = { nombre: '' };
 
 export default function Proveedores() {
   const { usuario } = useAuth();
@@ -55,7 +55,7 @@ export default function Proveedores() {
 
   function abrirEditar(p) {
     setModal(p);
-    setForm({ nombre: p.nombre, rut: p.rut || '', contacto: p.contacto || '', telefono: p.telefono || '', correo: p.correo || '' });
+    setForm({ nombre: p.nombre });
     setEspeciesSeleccionadas((p.especies || []).map(e => e.id));
     setError('');
   }
@@ -78,7 +78,7 @@ export default function Proveedores() {
     if (!form.nombre.trim()) { setError('El nombre es obligatorio'); return; }
     setGuardando(true); setError('');
     try {
-      const payload = { ...form, especieIds: especiesSeleccionadas };
+      const payload = { nombre: form.nombre, especieIds: especiesSeleccionadas };
       if (modal === 'nuevo') {
         await api.post('/proveedores', { ...payload, empresaId: empresaId || undefined });
       } else {
@@ -152,17 +152,26 @@ export default function Proveedores() {
                       <span className="card-title">🏭 {p.nombre}</span>
                     </div>
                     <div className="card-body">
-                      {p.rut      && <p><span>🪪</span><span>RUT: {p.rut}</span></p>}
-                      {p.contacto && <p><span>👤</span><span>{p.contacto}</span></p>}
-                      {p.telefono && <p><span>📞</span><span>{p.telefono}</span></p>}
-                      {p.correo   && <p><span>✉️</span><span>{p.correo}</span></p>}
-                      {p.especies?.length > 0 && (
-                        <p>
-                          <span>🌿</span>
-                          <span>{p.especies.map(e => e.nombre).join(', ')}</span>
-                        </p>
+                      {p.especies?.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem', marginTop: '.25rem' }}>
+                          {p.especies.map(e => (
+                            <span key={e.id} style={{
+                              background: 'var(--verde-50, #f0fdf4)',
+                              color: 'var(--verde-700, #15803d)',
+                              border: '1px solid var(--verde-200, #bbf7d0)',
+                              borderRadius: 20,
+                              padding: '2px 10px',
+                              fontSize: '.78rem',
+                              fontWeight: 500,
+                            }}>
+                              🌿 {e.nombre}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p style={{ color: 'var(--gris-400)', fontSize: '.85rem', margin: 0 }}>Sin especies asignadas</p>
                       )}
-                      <p><span>👤</span><span>Creado por: {p.creado_por_nombre || '—'}</span></p>
+                      <p style={{ marginTop: '.5rem' }}><span>👤</span><span>Creado por: {p.creado_por_nombre || '—'}</span></p>
                       <p><span>📅</span><span>{new Date(p.created_at).toLocaleDateString('es-CO')}</span></p>
                     </div>
                     {esAdmin && (
@@ -190,10 +199,6 @@ export default function Proveedores() {
                     <thead>
                       <tr>
                         <th>Nombre</th>
-                        <th>RUT</th>
-                        <th>Contacto</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
                         <th>Especies</th>
                         <th>Creado por</th>
                         <th>Fecha</th>
@@ -204,11 +209,28 @@ export default function Proveedores() {
                       {lista.map(p => (
                         <tr key={p.id}>
                           <td><strong>🏭 {p.nombre}</strong></td>
-                          <td className="td-muted">{p.rut || '—'}</td>
-                          <td className="td-muted">{p.contacto || '—'}</td>
-                          <td className="td-muted">{p.telefono || '—'}</td>
-                          <td className="td-muted">{p.correo || '—'}</td>
-                          <td className="td-muted">{p.especies?.length > 0 ? p.especies.map(e => e.nombre).join(', ') : '—'}</td>
+                          <td>
+                            {p.especies?.length > 0 ? (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem' }}>
+                                {p.especies.map(e => (
+                                  <span key={e.id} style={{
+                                    background: 'var(--verde-50, #f0fdf4)',
+                                    color: 'var(--verde-700, #15803d)',
+                                    border: '1px solid var(--verde-200, #bbf7d0)',
+                                    borderRadius: 20,
+                                    padding: '2px 8px',
+                                    fontSize: '.75rem',
+                                    fontWeight: 500,
+                                    whiteSpace: 'nowrap',
+                                  }}>
+                                    🌿 {e.nombre}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="td-muted">—</span>
+                            )}
+                          </td>
                           <td className="td-muted">{p.creado_por_nombre || '—'}</td>
                           <td className="td-muted">{new Date(p.created_at).toLocaleDateString('es-CO')}</td>
                           {esAdmin && (
@@ -244,42 +266,9 @@ export default function Proveedores() {
                 <label>Nombre *</label>
                 <input
                   value={form.nombre}
-                  onChange={e => setForm({ ...form, nombre: e.target.value })}
+                  onChange={e => setForm({ nombre: e.target.value })}
                   placeholder="Nombre del proveedor"
                   required
-                />
-              </div>
-              <div className="form-group">
-                <label>RUT</label>
-                <input
-                  value={form.rut}
-                  onChange={e => setForm({ ...form, rut: e.target.value })}
-                  placeholder="Ej: 12.345.678-9"
-                />
-              </div>
-              <div className="form-group">
-                <label>Contacto</label>
-                <input
-                  value={form.contacto}
-                  onChange={e => setForm({ ...form, contacto: e.target.value })}
-                  placeholder="Nombre del contacto"
-                />
-              </div>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input
-                  value={form.telefono}
-                  onChange={e => setForm({ ...form, telefono: e.target.value })}
-                  placeholder="+56 9 1234 5678"
-                />
-              </div>
-              <div className="form-group">
-                <label>Correo</label>
-                <input
-                  type="email"
-                  value={form.correo}
-                  onChange={e => setForm({ ...form, correo: e.target.value })}
-                  placeholder="correo@proveedor.com"
                 />
               </div>
 
@@ -304,17 +293,33 @@ export default function Proveedores() {
                       : 'No hay especies disponibles'}
                   </p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.4rem', maxHeight: 180, overflowY: 'auto', border: '1px solid var(--gris-200)', borderRadius: 6, padding: '.5rem' }}>
-                    {especiesFiltradas.map(e => (
-                      <label key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>
-                        <input
-                          type="checkbox"
-                          checked={especiesSeleccionadas.includes(e.id)}
-                          onChange={() => toggleEspecie(e.id)}
-                        />
-                        🌿 {e.nombre}
-                      </label>
-                    ))}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', padding: '.75rem', background: 'var(--gris-50, #f9fafb)', border: '1px solid var(--gris-200)', borderRadius: 8 }}>
+                    {especiesFiltradas.map(e => {
+                      const activa = especiesSeleccionadas.includes(e.id);
+                      return (
+                        <button
+                          key={e.id}
+                          type="button"
+                          onClick={() => toggleEspecie(e.id)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '.3rem',
+                            padding: '5px 12px',
+                            borderRadius: 20,
+                            border: activa ? '2px solid var(--verde-600, #16a34a)' : '2px solid var(--gris-300)',
+                            background: activa ? 'var(--verde-50, #f0fdf4)' : '#fff',
+                            color: activa ? 'var(--verde-700, #15803d)' : 'var(--gris-500)',
+                            fontWeight: activa ? 600 : 400,
+                            fontSize: '.85rem',
+                            cursor: 'pointer',
+                            transition: 'all .15s',
+                          }}
+                        >
+                          {activa ? '✓' : '+'} 🌿 {e.nombre}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
