@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PerfilModal from './PerfilModal';
+import api from '../api/client';
 
 const ROL_LABEL = { superadmin: 'Superadministrador', admin: 'Administrador', gestor: 'Gestor' };
 const ROL_COLOR = {
@@ -14,8 +15,15 @@ export default function Sidebar({ open, onClose }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const [perfilAbierto, setPerfilAbierto] = useState(false);
+  const [empresa, setEmpresa] = useState(null);
   const esAdmin      = ['superadmin', 'admin'].includes(usuario?.rol);
   const esSuperadmin = usuario?.rol === 'superadmin';
+
+  useEffect(() => {
+    if (usuario && !esSuperadmin) {
+      api.get('/auth/mi-empresa').then(({ data }) => setEmpresa(data.empresa)).catch(() => {});
+    }
+  }, [usuario?.id]);
   const iniciales = usuario?.nombre?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
   const colores = ROL_COLOR[usuario?.rol] || { bg: '#374151', text: '#fff' };
 
@@ -32,7 +40,7 @@ export default function Sidebar({ open, onClose }) {
         <div className="sidebar-brand">
           <span className="sidebar-brand-icon">🌱</span>
           <div className="sidebar-brand-text">
-            <strong>Semillas App</strong>
+            <strong>{esSuperadmin ? 'Semillas App' : (empresa?.nombre || 'Semillas App')}</strong>
             <span>Gestión de desarrollos agrícola</span>
           </div>
         </div>

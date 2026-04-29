@@ -1,6 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { crearUsuario, buscarPorEmail, buscarPorId, actualizarPerfil, verificarPassword } = require('../models/User');
+const { empresasDeUsuario } = require('../models/Empresa');
+const pool = require('../db/connection');
 const { verificarToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -109,6 +111,18 @@ router.put('/perfil', verificarToken, async (req, res) => {
   } catch (err) {
     console.error('Error al actualizar perfil:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// GET /api/auth/mi-empresa — devuelve la empresa del usuario autenticado
+router.get('/mi-empresa', verificarToken, async (req, res) => {
+  try {
+    const ids = await empresasDeUsuario(req.usuario.id);
+    if (ids.length === 0) return res.json({ empresa: null });
+    const { rows } = await pool.query('SELECT id, nombre FROM empresas WHERE id = $1', [ids[0]]);
+    res.json({ empresa: rows[0] || null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
