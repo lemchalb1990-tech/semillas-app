@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [filtroEspecie, setFiltroEspecie] = useState('');
   const [modal, setModal]               = useState(null);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
-  const [modo, setModo] = useViewMode('proyectos', 'cards');
+  const [modo, setModo, esMobil] = useViewMode('proyectos', 'cards');
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -73,7 +73,7 @@ export default function Dashboard() {
             <p>Gestión y seguimiento de desarrollos agrícola</p>
           </div>
           <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-            <ViewToggle mode={modo} onChange={setModo} />
+            {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
             <button className="btn btn-primary" onClick={() => setModal('nuevo')}>
               + Nuevo proyecto
             </button>

@@ -23,7 +23,7 @@ export default function Proveedores() {
   const [empresaId, setEmpresaId]       = useState('');
   const [especiesDisponibles, setEspeciesDisponibles] = useState([]);
   const [especiesSeleccionadas, setEspeciesSeleccionadas] = useState([]);
-  const [modo, setModo]                 = useViewMode('proveedores', 'cards');
+  const [modo, setModo, esMobil]        = useViewMode('proveedores', 'cards');
   const [filtroNombre, setFiltroNombre] = useState('');
   const [filtroEspecie, setFiltroEspecie] = useState('');
 
@@ -131,7 +131,7 @@ export default function Proveedores() {
             <p>Catálogo de proveedores por empresa</p>
           </div>
           <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-            <ViewToggle mode={modo} onChange={setModo} />
+            {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo proveedor</button>
             )}

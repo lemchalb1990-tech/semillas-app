@@ -29,7 +29,7 @@ export default function Agricultores() {
   const [filtroNombre, setFiltroNombre]   = useState('');
   const [filtroEspecie, setFiltroEspecie] = useState('');
   const [mapaIdx, setMapaIdx]             = useState(null);
-  const [modo, setModo]                   = useViewMode('agricultores', 'cards');
+  const [modo, setModo, esMobil]          = useViewMode('agricultores', 'cards');
 
   useEffect(() => { cargar(); }, []);
 
@@ -148,7 +148,7 @@ export default function Agricultores() {
             <p>Registro de agricultores y sus campos</p>
           </div>
           <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-            <ViewToggle mode={modo} onChange={setModo} />
+            {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nuevo agricultor</button>
             )}

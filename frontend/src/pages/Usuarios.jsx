@@ -54,7 +54,7 @@ export default function Usuarios() {
   const [resetando, setResetando]           = useState(null);
   const [passwordGenerada, setPasswordGenerada] = useState(null);
   const [copiado, setCopiado]               = useState(false);
-  const [modo, setModo] = useViewMode('usuarios', 'cards');
+  const [modo, setModo, esMobil] = useViewMode('usuarios', 'cards');
 
   async function cargar() {
     setCargando(true);
@@ -144,7 +144,7 @@ export default function Usuarios() {
             <p>Administración de cuentas y roles del sistema</p>
           </div>
           <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-            <ViewToggle mode={modo} onChange={setModo} />
+            {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
             <button className="btn btn-primary" onClick={abrirNuevo}>+ Nuevo usuario</button>
           </div>
         </div>

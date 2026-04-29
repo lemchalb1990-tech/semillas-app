@@ -21,7 +21,7 @@ export default function Especies() {
   const [confirmEliminar, setConfirmEliminar] = useState(null);
   const [empresas, setEmpresas]     = useState([]);
   const [empresaId, setEmpresaId]   = useState('');
-  const [modo, setModo]             = useViewMode('especies', 'cards');
+  const [modo, setModo, esMobil]    = useViewMode('especies', 'cards');
 
   useEffect(() => { cargar(); }, []);
 
@@ -99,7 +99,7 @@ export default function Especies() {
             <p>Catálogo de especies por empresa</p>
           </div>
           <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-            <ViewToggle mode={modo} onChange={setModo} />
+            {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
             {esAdmin && (
               <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva especie</button>
             )}

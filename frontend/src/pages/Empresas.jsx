@@ -15,7 +15,7 @@ export default function Empresas() {
   const [error, setError]             = useState('');
   const [guardando, setGuardando]     = useState(false);
   const [panelUsuarios, setPanelUsuarios] = useState(null);
-  const [modo, setModo] = useViewMode('empresas', 'cards');
+  const [modo, setModo, esMobil] = useViewMode('empresas', 'cards');
   const [asignados, setAsignados]     = useState([]);
   const [disponibles, setDisponibles] = useState([]);
 
@@ -114,7 +114,7 @@ export default function Empresas() {
           <p>Administración de empresas y usuarios asignados</p>
         </div>
         <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-          <ViewToggle mode={modo} onChange={setModo} />
+          {!esMobil && <ViewToggle mode={modo} onChange={setModo} />}
           <button className="btn btn-primary" onClick={abrirNueva}>+ Nueva empresa</button>
         </div>
       </div>
