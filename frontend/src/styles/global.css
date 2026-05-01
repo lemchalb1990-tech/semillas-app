@@ -1,21 +1,29 @@
 /* =====================================================
    RESET & BASE
 ===================================================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: default; user-select: none; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+
+/* Especificidad mayor (clase) para garantizar cursor default en elementos estáticos */
+.card, .card *, .stat-card, .stat-card *,
+.page-header, .page-header *,
+.table-wrap th, .table-wrap td, .table-wrap td *,
+.sidebar-brand, .sidebar-brand *,
+.sidebar-section-label, .badge, .empty, .empty *,
+.topbar-brand { cursor: default; }
 
 a, button, .btn, [role="button"],
 input[type="button"], input[type="submit"], input[type="reset"],
 input[type="checkbox"], input[type="radio"],
 select, label[for],
 .sidebar-logout, .modal-close, .hamburger,
-.sidebar-nav a, .auth-footer a, th[onclick], .view-toggle-btn,
+.sidebar-nav a, .auth-footer a, .view-toggle-btn,
 [class*="install-btn"], [class*="pwa"] { cursor: pointer; }
 
 input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
 input[type="text"], input[type="email"], input[type="password"],
 input[type="number"], input[type="search"], input[type="url"],
 input[type="tel"], input[type="date"],
-textarea, [contenteditable] { cursor: text; user-select: text; }
+textarea, [contenteditable] { cursor: text; -webkit-user-select: text; user-select: text; }
 
 :root {
   --verde-900:  #14532d;
